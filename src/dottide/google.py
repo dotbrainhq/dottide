@@ -16,6 +16,7 @@ SCOPES = [
 ]
 GSC = "https://searchconsole.googleapis.com/webmasters/v3"
 GA4_DATA = "https://analyticsdata.googleapis.com/v1beta"
+GA4_ADMIN = "https://analyticsadmin.googleapis.com/v1beta"
 
 _credentials: dict[str, service_account.Credentials] = {}
 
@@ -97,3 +98,29 @@ def ga4_sources(profile: Profile, prop: str, start: str, end: str) -> list[dict]
             }
         )
     return rows
+
+
+def ga4_web_streams(profile: Profile) -> list[dict]:
+    """Every GA4 web stream the key can read, with the site address it tracks."""
+    streams, page = [], None
+    while True:
+        params = {"pageSize": 200, **({"pageToken": page} if page else {})}
+        data = _call(profile, "GET", f"{GA4_ADMIN}/accountSummaries", params=params)
+        for account in data.get("accountSummaries", []):
+            for prop in account.get("propertySummaries", []):
+                pid = prop["property"].split("/")[1]
+                url = f"{GA4_ADMIN}/properties/{pid}/dataStreams"
+                for stream in _call(profile, "GET", url).get("dataStreams", []):
+                    web = stream.get("webStreamData")
+                    if web:
+                        streams.append(
+                            {
+                                "property": pid,
+                                "name": prop.get("displayName"),
+                                "measurement_id": web.get("measurementId"),
+                                "url": web.get("defaultUri", ""),
+                            }
+                        )
+        page = data.get("nextPageToken")
+        if not page:
+            return streams

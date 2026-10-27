@@ -16,7 +16,7 @@ The service account never gets a password and never signs in anywhere. It can on
 ## 2. Turn on the APIs
 
 1. Open [Google Search Console API](https://console.cloud.google.com/apis/library/searchconsole.googleapis.com) and select **Enable**.
-2. If any site in this profile uses GA4, also enable [Google Analytics Data API](https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com).
+2. If any of your sites use GA4, also enable [Google Analytics Data API](https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com), which reads the numbers, and [Google Analytics Admin API](https://console.cloud.google.com/apis/library/analyticsadmin.googleapis.com), which lets `dottide discover` find your GA4 properties.
 
 Check that the project picker still shows `dottide` before each **Enable**.
 
@@ -58,11 +58,15 @@ uv run dottide import-key dottide-main ~/Downloads/<downloaded-key>.json
 
 The command copies the key into the macOS keychain and reads it back to confirm. Then delete the downloaded file and empty the Trash.
 
-Add the sites to a profile in `~/.config/dottide/` (see [Configuration](configuration.md)) and run:
+Make a profile in `~/.config/dottide/` with just the `[key]` section (see [Configuration](configuration.md)), then let dotTide find your sites and add them:
 
 ```
+uv run dottide discover
+uv run dottide discover --write
 uv run dottide sites
 ```
+
+The first command shows what it found, the second adds it to the profile, and `sites` checks access for each one.
 
 Every site should show `"search_console": "ok"`, and `"ga4": "ok"` where GA4 is used. A new share can take a few minutes to show up.
 
