@@ -1,13 +1,11 @@
-# One Linux job on pull requests only: lint and unit tests, no network calls, no macOS runners.
-# Kept small on purpose so a new account never looks like it is burning CI.
-# Branch protection, when available, requires this job's name: "CI passed".
+# One Linux job: lint and unit tests, no network calls, no macOS runners.
+# It only runs when started by hand (Actions tab, then Run workflow). The account is new
+# and was flagged once for frequent CI, so checks run locally before every push instead.
+# Branch protection, when added, requires this job's name: "CI passed".
 name: CI
 
 on:
-  pull_request:
-    paths-ignore:
-      - "**.md"
-      - "docs/**"
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}

@@ -10,7 +10,7 @@ Every change follows the same path, even a one-word fix.
 
 ## Checks
 
-Run these before opening a pull request:
+CI only runs when someone starts it by hand, so these local checks are the gate. Run them before every push:
 
 ```
 uv run ruff check .
@@ -23,4 +23,4 @@ uv run pytest -q
 - dotTide is read-only. A change that adds a write scope or calls an endpoint that changes anything won't be merged.
 - No keys, tokens or filled-in profiles in the repo, the tests or the examples. Tests use made-up sites like `a.test`.
 - New reports go in `src/dottide/report.py` so the MCP server, the CLI and the snapshot all share them. The server stays a thin wrapper.
-- CI runs one Linux job on pull requests only. Keep it that way: no scheduled runs, no macOS runners, no matrix.
+- CI is one Linux job that runs only when started by hand. Keep it that way: no automatic triggers, no scheduled runs, no macOS runners, no matrix.
