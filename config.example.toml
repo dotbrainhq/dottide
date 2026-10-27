@@ -1,0 +1,25 @@
+# dotTide profile. Copy to ~/.config/dottide/<profile>.toml, one file per side.
+# The file name is the profile name. Never commit a filled-in copy.
+
+[key]
+# Where the Google service account key lives. Pick one.
+keychain = "dottide-main"             # set with: dottide import-key dottide-main key.json
+# file = "~/.config/dottide/keys/main.json"
+
+# One block per site. Leave the list empty until the service account has access.
+#
+# search_console: the property exactly as Search Console shows it:
+#   "sc-domain:example.com" for a domain property, "https://example.com/" for a URL prefix.
+# ga4_property: the numeric property ID (Admin > Property details), not the G- measurement ID.
+#   Leave it out for sites without GA4.
+#
+# [[sites]]
+# name = "example.com"
+# search_console = "sc-domain:example.com"
+# ga4_property = "123456789"
+
+[stores]
+# Public numbers, no key needed.
+wordpress_org = []      # plugin slugs
+firefox = []            # Firefox Add-ons slugs
+github_owners = []      # users or orgs; only public repos are counted
