@@ -1,4 +1,7 @@
-<p align="center"><img src="brand/png/sizes/dottide-icon-128.png" width="96" height="96" alt="dotTide icon: a wave running across a green tile, with one dot under the surface."></p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/cover-dark.png">
+  <img src=".github/assets/cover-light.png" alt="dotTide: every site's numbers, one place. Search Console, GA4 and store stats across Google accounts, for you and your AI agents. Local and read-only. Next to the text, the dotTide icon: a wave running across a green tile, with one dot under the surface.">
+</picture>
 
 # dotTide
 

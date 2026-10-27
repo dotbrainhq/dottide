@@ -5,4 +5,4 @@
 - First version: the `sites`, `search_queries`, `traffic` and `store_stats` MCP tools, the matching commands, and the weekly snapshot.
 - Keys stored in the macOS keychain with `dottide import-key`.
 - Docs for Google setup, configuration and everyday use.
-- The Undertow icon and brand assets.
+- README cover in light and dark.
