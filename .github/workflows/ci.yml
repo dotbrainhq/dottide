@@ -1,13 +1,10 @@
-# One Linux job on pull requests only: lint and unit tests, no network calls, no macOS runners.
+# One Linux job per pull request: lint and unit tests, no network calls, no macOS runners.
 # Kept small on purpose so a new account never looks like it is burning CI.
-# Branch protection, when available, requires this job's name: "CI passed".
+# Every pull request runs it, docs included, because main requires "CI passed" to merge.
 name: CI
 
 on:
   pull_request:
-    paths-ignore:
-      - "**.md"
-      - "docs/**"
 
 concurrency:
   group: ci-${{ github.ref }}
