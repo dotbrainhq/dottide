@@ -5,7 +5,7 @@
 
 # dotTide
 
-Read-only numbers for every site and product you run, in one place, for you and your AI agents. Search Console and GA4 across different Google accounts, plus public store numbers, behind four MCP tools and a weekly snapshot.
+dotTide is a read-only MCP server and command-line tool that gives Claude, Cursor, Codex and other AI agents the numbers for every site you run. It reads Google Search Console and Google Analytics 4 (GA4) across multiple Google accounts, plus WordPress.org, Firefox Add-ons and GitHub stats, and writes a weekly snapshot for scripts and agents.
 
 Nothing gets added to your sites. dotTide only reads numbers you already have, and your keys stay on your Mac.
 
@@ -77,6 +77,7 @@ claude mcp add --scope user dottide -- uv run --quiet --project "$PWD" dottide
 - [Google setup](docs/google-setup.md): the service account, click by click, and sharing each site.
 - [Configuration](docs/configuration.md): profiles, every field, keys and environment variables.
 - [Using dotTide](docs/usage.md): each tool and its options, MCP clients, the weekly snapshot and its format, and fixes for common errors.
+- [Connecting AI clients](docs/clients.md): Claude Code, Claude Desktop, Cursor, Windsurf, VS Code, Codex, Gemini CLI, Grok, and agents without MCP.
 
 ## Good to know
 

@@ -77,7 +77,7 @@ Claude Code:
 claude mcp add --scope user dottide -- uv run --quiet --project /path/to/dottide dottide
 ```
 
-Claude Desktop, Cursor and other clients: add a stdio server whose command is `uv` and whose arguments are `run --quiet --project /path/to/dottide dottide`.
+Claude Desktop, Cursor, VS Code, Codex, Gemini CLI and others: see [Connecting AI clients](clients.md) for each one's config.
 
 Every tool is marked read-only. Good first questions:
 

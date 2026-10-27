@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Read-only numbers for every site and product you run, across Google accounts, for people and AI agents."
 readme = "README.md"
 license = "MIT"
+keywords = ["mcp", "mcp-server", "google-search-console", "google-analytics", "ga4", "seo", "analytics", "ai-agents", "claude", "cli"]
 requires-python = ">=3.12"
 dependencies = [
     "google-auth[requests]>=2.40",
