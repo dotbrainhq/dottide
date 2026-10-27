@@ -77,6 +77,7 @@ claude mcp add --scope user dottide -- uv run --quiet --project "$PWD" dottide
 - [Google setup](docs/google-setup.md): the service account, click by click, and sharing each site.
 - [Configuration](docs/configuration.md): profiles, every field, keys and environment variables.
 - [Using dotTide](docs/usage.md): each tool and its options, MCP clients, the weekly snapshot and its format, and fixes for common errors.
+- [Asking an AI agent for your numbers](docs/examples.md): example prompts for weekly checks, content to refresh, AI referrals and store numbers, plus a saved Claude Code command.
 - [Connecting AI clients](docs/clients.md): Claude Code, Claude Desktop, Cursor, Windsurf, VS Code, Codex, Gemini CLI, Grok, and agents without MCP.
 
 ## Good to know
