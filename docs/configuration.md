@@ -67,7 +67,7 @@ One block per site.
 | `search_console` | No | The Search Console property, written exactly as Search Console shows it. A domain property looks like `sc-domain:example.com`. A URL-prefix property is the full URL with the trailing slash, like `https://example.com/`. |
 | `ga4_property` | No | The numeric GA4 property ID from Admin, then Property details. It's a number like `123456789`, not the `G-` measurement ID. Leave it out for sites without GA4. |
 
-Not sure which Search Console property you have? Run `uv run dottide sites`. It lists every property the key can see, so you can copy the exact one.
+You rarely need to type these by hand: `uv run dottide discover --write` finds every site the key can read and adds the blocks for you. To check a property name yourself, `uv run dottide sites` lists every property the key can see.
 
 ### `[stores]`
 

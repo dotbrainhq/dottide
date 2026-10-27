@@ -10,7 +10,7 @@ Search Console data settles about three days after the fact. Every range that do
 - **`start` and `end`:** exact dates as `YYYY-MM-DD`. They override `days`.
 - **`compare`:** adds the previous period of the same length, right before the range, with the change for each number.
 
-## The four tools
+## The tools
 
 ### `sites`
 
@@ -68,6 +68,22 @@ uv run dottide store_stats --profile business
 - **GitHub:** stars and forks for each public repo, and the total.
 
 A store that fails returns an `error` field for that item; the rest still come back.
+
+### `discover`
+
+Finds every Search Console property and every GA4 web stream the key can read, matches them by domain, and suggests a `[[sites]]` block for each site that isn't in a profile yet.
+
+```
+uv run dottide discover
+uv run dottide discover --write
+uv run dottide discover --profile business --write
+```
+
+Without `--write` it prints the blocks so you can check them. With `--write` it adds them to the profile file, above `[stores]`. When you have more than one profile, name the one to write to with `--profile`. When a domain has both a domain property and a URL-prefix property, discover picks the domain property, because it covers every subdomain.
+
+Finding GA4 properties needs the Google Analytics Admin API turned on in your Google Cloud project. Without it, discover still finds every Search Console property and prints a note with the link to turn the API on.
+
+In MCP clients, `discover` only reads: it returns what it found and the blocks to add, and you add them with the command above.
 
 ## From an MCP client
 
