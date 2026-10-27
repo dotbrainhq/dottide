@@ -92,4 +92,4 @@ Anything that can run a command or read a file can still use dotTide:
 
 ## Check that it works
 
-Ask your client: "Use dotTide to list my sites and tell me whether each one has access." It should call `sites` and answer from the result. If the tools don't show up, run `uv run dottide sites` in a terminal first: if that fails, the client will too, and the message tells you why.
+Ask your client: "Use dotTide to list my sites and tell me whether each one has access." It should call `sites` and answer from the result. For more to ask, see [Asking an AI agent for your numbers](examples.md). If the tools don't show up, run `uv run dottide sites` in a terminal first: if that fails, the client will too, and the message tells you why.
