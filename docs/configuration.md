@@ -9,8 +9,8 @@ By default dotTide loads every `.toml` file in `~/.config/dottide/`. The file na
 Set `DOTTIDE_CONFIG` to load something else:
 
 ```
-DOTTIDE_CONFIG=~/.config/dottide/business.toml uv run dottide sites
-DOTTIDE_CONFIG=/path/to/folder uv run dottide sites
+DOTTIDE_CONFIG=~/.config/dottide/business.toml uvx dottide sites
+DOTTIDE_CONFIG=/path/to/folder uvx dottide sites
 ```
 
 Point an agent at a single file when it should only see one profile.
@@ -25,7 +25,7 @@ Profiles decide two things: which key reads a site, and which weekly snapshot fi
 
 ## The file, field by field
 
-Copy [`config.example.toml`](../config.example.toml) and fill it in.
+`uvx dottide init` writes a starter profile to `~/.config/dottide/main.toml`; add `--profile business` for another name. It never overwrites a file. The starter looks like this once filled in:
 
 ```
 [key]
@@ -67,7 +67,7 @@ One block per site.
 | `search_console` | No | The Search Console property, written exactly as Search Console shows it. A domain property looks like `sc-domain:example.com`. A URL-prefix property is the full URL with the trailing slash, like `https://example.com/`. |
 | `ga4_property` | No | The numeric GA4 property ID from Admin, then Property details. It's a number like `123456789`, not the `G-` measurement ID. Leave it out for sites without GA4. |
 
-You rarely need to type these by hand: `uv run dottide discover --write` finds every site the key can read and adds the blocks for you. To check a property name yourself, `uv run dottide sites` lists every property the key can see.
+You rarely need to type these by hand: `uvx dottide discover --write` finds every site the key can read and adds the blocks for you. To check a property name yourself, `uvx dottide sites` lists every property the key can see.
 
 ### `[stores]`
 
@@ -86,7 +86,7 @@ When several profiles list the same slug, `store_stats` counts it once.
 Store a downloaded key in the keychain, then delete the file:
 
 ```
-uv run dottide import-key dottide-main ~/Downloads/key.json
+uvx dottide import-key dottide-main ~/Downloads/key.json
 ```
 
 The command checks that the file is a Google service account key, stores it, and reads it back to confirm. The key is passed to the keychain on standard input, so it never shows up in the process list.

@@ -17,7 +17,7 @@ Search Console data settles about three days after the fact. Every range that do
 Every configured site, which key covers it, and whether access works at the moment you ask.
 
 ```
-uv run dottide sites
+uvx dottide sites
 ```
 
 For each profile you get the service account email, every Search Console property that key can see, and one line per site:
@@ -32,9 +32,9 @@ Run it first whenever something looks wrong.
 Search Console clicks, impressions, click-through rate (percent) and average position, by query or by page.
 
 ```
-uv run dottide search_queries example.com
-uv run dottide search_queries example.com --by page --days 7 --compare
-uv run dottide search_queries example.com --start 2026-09-01 --end 2026-09-30 --limit 50
+uvx dottide search_queries example.com
+uvx dottide search_queries example.com --by page --days 7 --compare
+uvx dottide search_queries example.com --start 2026-09-01 --end 2026-09-30 --limit 50
 ```
 
 | Option | Default | Meaning |
@@ -49,7 +49,7 @@ The result carries `totals` for the whole site and `rows`. With `compare`, each 
 GA4 sessions by source and medium, with AI assistant referrals counted on their own. Only for sites that have `ga4_property`.
 
 ```
-uv run dottide traffic example.com --compare
+uvx dottide traffic example.com --compare
 ```
 
 The result has `sessions`, `ai_sessions`, `ai_referrals` (one entry per assistant with sessions and engaged sessions) and the top `sources`. AI assistants are matched by referring domain: ChatGPT, Perplexity, Copilot, Gemini, Claude, Mistral, DeepSeek, Grok, Meta AI, You.com and Phind. Visits an assistant opens without a referrer land in `(direct)`, so treat the AI count as a floor.
@@ -59,8 +59,8 @@ The result has `sessions`, `ai_sessions`, `ai_referrals` (one entry per assistan
 Live public numbers, no key needed.
 
 ```
-uv run dottide store_stats
-uv run dottide store_stats --profile business
+uvx dottide store_stats
+uvx dottide store_stats --profile business
 ```
 
 - **WordPress.org:** version, active installs, rating, ratings count, support threads and how many are resolved, last update, and downloads for each of the last seven full days.
@@ -74,9 +74,9 @@ A store that fails returns an `error` field for that item; the rest still come b
 Finds every Search Console property and every GA4 web stream the key can read, matches them by domain, and suggests a `[[sites]]` block for each site that isn't in a profile yet.
 
 ```
-uv run dottide discover
-uv run dottide discover --write
-uv run dottide discover --profile business --write
+uvx dottide discover
+uvx dottide discover --write
+uvx dottide discover --profile business --write
 ```
 
 Without `--write` it prints the blocks so you can check them. With `--write` it adds them to the profile file, above `[stores]`. When you have more than one profile, name the one to write to with `--profile`. When a domain has both a domain property and a URL-prefix property, discover picks the domain property, because it covers every subdomain.
@@ -90,7 +90,7 @@ In MCP clients, `discover` only reads: it returns what it found and the blocks t
 Claude Code:
 
 ```
-claude mcp add --scope user dottide -- uv run --quiet --project /path/to/dottide dottide
+claude mcp add --scope user dottide -- uvx dottide
 ```
 
 Claude Desktop, Cursor, VS Code, Codex, Gemini CLI and others: see [Connecting AI clients](clients.md) for each one's config.
@@ -105,7 +105,7 @@ Every tool is marked read-only. Good first questions:
 ## The weekly snapshot
 
 ```
-uv run dottide snapshot --out ~/growth
+uvx dottide snapshot --out ~/growth
 ```
 
 This writes one file per profile, named `<profile>-<year>-W<week>.json`, covering the last full week (ending three days ago) against the week before. Without `--out` it prints to the terminal.
@@ -125,7 +125,7 @@ If one site fails, for example because its access was removed, that site carries
 
 ### Running it every week
 
-On macOS, a LaunchAgent can run the snapshot every Monday morning. Save this as `~/Library/LaunchAgents/com.example.dottide-snapshot.plist`, changing the paths, then load it with `launchctl load` followed by the file path.
+On macOS, a LaunchAgent can run the snapshot every Monday morning. Save this as `~/Library/LaunchAgents/com.example.dottide-snapshot.plist`, changing the output folder, then load it with `launchctl load` followed by the file path.
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -135,9 +135,7 @@ On macOS, a LaunchAgent can run the snapshot every Monday morning. Save this as 
   <key>Label</key><string>com.example.dottide-snapshot</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/opt/homebrew/bin/uv</string>
-    <string>run</string><string>--quiet</string>
-    <string>--project</string><string>/path/to/dottide</string>
+    <string>/opt/homebrew/bin/uvx</string>
     <string>dottide</string><string>snapshot</string>
     <string>--out</string><string>/path/to/growth</string>
   </array>

@@ -8,6 +8,27 @@ Every change follows the same path, even a one-word fix.
 4. Open a pull request that says `Closes #<issue>`.
 5. Squash-merge once the `CI passed` check is green.
 
+## Working from source
+
+```
+git clone https://github.com/dotbrainhq/dottide.git
+cd dottide
+uv sync
+uv run dottide sites
+```
+
+`uv run dottide` runs your checkout instead of the published package.
+
+## Releases
+
+1. Close the milestone's issues, then bump the version in `pyproject.toml` and `CHANGELOG.md` in a pull request.
+2. After it merges, tag `main` and push the tag. The Release job in GitHub Actions tests, builds and publishes to PyPI through trusted publishing, so no token is stored anywhere.
+
+```
+git switch main && git pull && git tag vX.Y.Z && git push origin vX.Y.Z
+gh release create vX.Y.Z --generate-notes
+```
+
 ## Checks
 
 Run these before opening a pull request:

@@ -2,6 +2,7 @@
 
 dottide                      run the MCP server on stdio (what MCP clients call)
 dottide sites                print any report as JSON; also search_queries, traffic, store_stats
+dottide init                 write a starter profile to ~/.config/dottide/main.toml
 dottide discover [--write]   suggest profile entries for sites the key can read
 dottide snapshot [--out DIR] write the weekly snapshot, one file per profile
 dottide import-key NAME FILE copy a service account key into the macOS keychain
@@ -19,6 +20,7 @@ from mcp.types import ToolAnnotations
 
 from dottide import discover as finder
 from dottide import keys, report, snapshot
+from dottide.config import init_profile
 
 READ_ONLY = ToolAnnotations(read_only_hint=True, open_world_hint=True)
 
@@ -106,6 +108,8 @@ def main() -> None:
         p.add_argument("--limit", type=int, default=25)
     s = sub.add_parser("store_stats")
     s.add_argument("--profile")
+    i = sub.add_parser("init")
+    i.add_argument("--profile", default="main", help="profile name, which is also the file name")
     d = sub.add_parser("discover")
     d.add_argument("--profile", help="only use this profile's key, and write to it")
     d.add_argument("--write", action="store_true", help="append the new sites to the profile")
@@ -115,9 +119,21 @@ def main() -> None:
     k.add_argument("name", help="keychain item name, for example dottide-main")
     k.add_argument("file", help="path to the downloaded service account JSON key")
     args = parser.parse_args()
+    try:
+        _run(args)
+    except (OSError, ValueError, RuntimeError) as exc:
+        # Expected problems (missing key, unknown site, existing file) get one clear line.
+        sys.exit(f"dottide: {exc}")
 
+
+def _run(args: argparse.Namespace) -> None:
     if args.command == "import-key":
         print(f"stored {keys.store(args.name, args.file)} in keychain item {args.name}")
+        return
+    if args.command == "init":
+        path = init_profile(args.profile)
+        print(f"wrote {path}")
+        print("next: dottide import-key dottide-main <key.json>, then dottide discover --write")
         return
     if args.command == "discover":
         found = finder.discover(args.profile)

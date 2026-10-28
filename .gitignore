@@ -10,4 +10,4 @@ dist/
 *.json
 *.toml
 !pyproject.toml
-!config.example.toml
+!src/dottide/profile_template.toml

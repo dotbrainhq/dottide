@@ -58,3 +58,15 @@ def test_profile_file(tmp_path):
     assert site.ga4_property == "42"
     with pytest.raises(ValueError):
         find_site([profile], "b.test")
+
+
+def test_init_profile_writes_template_once(tmp_path, monkeypatch):
+    from dottide import config
+
+    monkeypatch.setattr(config, "DEFAULT_DIR", tmp_path / "dottide")
+    path = config.init_profile("main")
+    assert path.read_text().startswith("# dotTide profile")
+    assert oct(path.stat().st_mode)[-3:] == "600"
+    assert config.load_profile(path).keychain == "dottide-main"
+    with pytest.raises(FileExistsError):
+        config.init_profile("main")

@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import tomllib
 from dataclasses import dataclass, field
+from importlib.resources import files
 from pathlib import Path
 
 from dottide import keys
@@ -91,3 +92,15 @@ def find_site(profiles: list[Profile], name: str) -> tuple[Profile, Site]:
                 return profile, site
     known = ", ".join(s.name for p in profiles for s in p.sites) or "none configured"
     raise ValueError(f"unknown site {name!r}. Configured sites: {known}")
+
+
+def init_profile(name: str = "main") -> Path:
+    """Write a starter profile from the bundled template. Never overwrites a file."""
+    folder = DEFAULT_DIR.expanduser()
+    path = folder / f"{name}.toml"
+    if path.exists():
+        raise FileExistsError(f"{path} already exists; edit it, or pick another --profile name")
+    folder.mkdir(mode=0o700, parents=True, exist_ok=True)
+    path.write_text(files("dottide").joinpath("profile_template.toml").read_text())
+    path.chmod(0o600)
+    return path

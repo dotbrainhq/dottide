@@ -3,17 +3,17 @@
 dotTide speaks MCP (Model Context Protocol), the open standard most AI coding tools and assistants use to call outside tools. Any client that can start a local MCP server over stdio can use it. Each one only needs the same command:
 
 ```
-uv run --quiet --project /path/to/dottide dottide
+uvx dottide
 ```
 
-Replace `/path/to/dottide` with the folder you cloned. Desktop apps often start without your shell's `PATH`, so if a client says it can't find `uv`, use its full path instead. `which uv` prints it, usually `/opt/homebrew/bin/uv`.
+`uvx` comes with [uv](https://docs.astral.sh/uv/). It downloads dotTide the first time and starts it from its cache after that. Desktop apps often start without your shell's `PATH`, so if a client says it can't find `uvx`, use its full path instead. `which uvx` prints it, usually `/opt/homebrew/bin/uvx`.
 
 Config file names and keys change between versions, so check your client's MCP docs if a snippet below doesn't match what you see.
 
 ## Claude Code
 
 ```
-claude mcp add --scope user dottide -- uv run --quiet --project /path/to/dottide dottide
+claude mcp add --scope user dottide -- uvx dottide
 ```
 
 `--scope user` makes it available in every project. Check it with `claude mcp get dottide`.
@@ -26,8 +26,8 @@ Open Settings, then Developer, then Edit Config, and add dotTide to `mcpServers`
 {
   "mcpServers": {
     "dottide": {
-      "command": "/opt/homebrew/bin/uv",
-      "args": ["run", "--quiet", "--project", "/path/to/dottide", "dottide"]
+      "command": "/opt/homebrew/bin/uvx",
+      "args": ["dottide"]
     }
   }
 }
@@ -52,8 +52,8 @@ Create `.vscode/mcp.json` in your project. VS Code uses `servers`, not `mcpServe
   "servers": {
     "dottide": {
       "type": "stdio",
-      "command": "/opt/homebrew/bin/uv",
-      "args": ["run", "--quiet", "--project", "/path/to/dottide", "dottide"]
+      "command": "/opt/homebrew/bin/uvx",
+      "args": ["dottide"]
     }
   }
 }
@@ -67,8 +67,8 @@ Add a table to `~/.codex/config.toml`:
 
 ```
 [mcp_servers.dottide]
-command = "/opt/homebrew/bin/uv"
-args = ["run", "--quiet", "--project", "/path/to/dottide", "dottide"]
+command = "/opt/homebrew/bin/uvx"
+args = ["dottide"]
 ```
 
 ## Gemini CLI
@@ -87,9 +87,9 @@ ChatGPT, grok.com and claude.ai in the browser connect to MCP servers by URL, ov
 
 Anything that can run a command or read a file can still use dotTide:
 
-- **Commands:** every tool is also a command that prints JSON, for example `uv run dottide search_queries example.com --compare`. See [Using dotTide](usage.md).
+- **Commands:** every tool is also a command that prints JSON, for example `uvx dottide search_queries example.com --compare`. See [Using dotTide](usage.md).
 - **Files:** the weekly snapshot writes one JSON file per profile. Point a script or an agent at the folder. The file format is in [Using dotTide](usage.md#the-weekly-snapshot).
 
 ## Check that it works
 
-Ask your client: "Use dotTide to list my sites and tell me whether each one has access." It should call `sites` and answer from the result. For more to ask, see [Asking an AI agent for your numbers](examples.md). If the tools don't show up, run `uv run dottide sites` in a terminal first: if that fails, the client will too, and the message tells you why.
+Ask your client: "Use dotTide to list my sites and tell me whether each one has access." It should call `sites` and answer from the result. For more to ask, see [Asking an AI agent for your numbers](examples.md). If the tools don't show up, run `uvx dottide sites` in a terminal first: if that fails, the client will too, and the message tells you why.
