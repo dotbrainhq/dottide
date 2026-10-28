@@ -81,7 +81,7 @@ The Grok Build CLI reads the MCP servers already set up for Claude and Cursor, s
 
 ## Web chat apps
 
-ChatGPT, grok.com and claude.ai in the browser connect to MCP servers by URL, over the internet. dotTide runs on your Mac and keeps its Google key in your keychain on purpose, so it has no public URL, and those apps can't reach it. Use a desktop app or a command-line client instead.
+ChatGPT, grok.com and claude.ai in the browser connect to MCP servers by URL, over the internet. dotTide runs on your computer and keeps its Google key in your system's secret store on purpose, so it has no public URL, and those apps can't reach it. Use a desktop app or a command-line client instead.
 
 ## Agents without MCP
 

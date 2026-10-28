@@ -8,7 +8,7 @@ dottide opportunities SITE   queries and pages worth working on
 dottide index_health SITE    sitemap state and index status of the top pages
 dottide core_web_vitals SITE Core Web Vitals from PageSpeed Insights
 dottide snapshot [--out DIR] write the weekly snapshot, one file per profile
-dottide import-key NAME FILE copy a service account key into the macOS keychain
+dottide import-key NAME FILE copy a service account key into the system secret store
 """
 
 from __future__ import annotations
@@ -190,7 +190,7 @@ def main() -> None:
     snap = sub.add_parser("snapshot")
     snap.add_argument("--out", help="folder for <profile>-<year>-W<week>.json; stdout if absent")
     k = sub.add_parser("import-key")
-    k.add_argument("name", help="keychain item name, for example dottide-main")
+    k.add_argument("name", help="name for the stored key, for example dottide-main")
     k.add_argument("file", help="path to the downloaded service account JSON key")
     args = parser.parse_args()
     try:
@@ -202,7 +202,7 @@ def main() -> None:
 
 def _run(args: argparse.Namespace) -> None:
     if args.command == "import-key":
-        print(f"stored {keys.store(args.name, args.file)} in keychain item {args.name}")
+        print(f"stored {keys.store(args.name, args.file)} in the secret store as {args.name}")
         return
     if args.command == "init":
         path = init_profile(args.profile)

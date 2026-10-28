@@ -226,7 +226,7 @@ On macOS, a LaunchAgent can run the snapshot every Monday morning. Save this as 
 
 | Message | What to do |
 |---|---|
-| `no keychain item` | Run `dottide import-key` with the name in your profile's `[key]`. |
+| `no stored key` | Run `dottide import-key` with the name in your profile's `[key]`. |
 | `not shared with this key` | Add the service account email to that site in Search Console as a Restricted user, or copy the exact property name that `sites` lists. A new share can take a few minutes. |
 | `Google API 403 ... has not been used in project` | Turn on that API in the Google Cloud project that owns the key. See [Google setup](google-setup.md). |
 | `Google API 403 ... sufficient permissions` on GA4 | Add the service account as a Viewer on the property, and check the numeric property ID. |

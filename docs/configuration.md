@@ -20,7 +20,7 @@ Point an agent at a single file when it should only see one profile.
 Profiles decide two things: which key reads a site, and which weekly snapshot file a site lands in. Common setups:
 
 - **One profile:** one key, every site, one weekly file.
-- **Several profiles, one key:** every profile names the same keychain item. The sites split into separate weekly files, for example one per brand.
+- **Several profiles, one key:** every profile names the same stored key. The sites split into separate weekly files, for example one per brand.
 - **Several profiles, several keys:** each profile has its own service account, so no single key can read everything.
 
 ## The file, field by field
@@ -52,8 +52,8 @@ Set exactly one of these:
 
 | Field | What it holds |
 |---|---|
-| `keychain` | The name of a macOS keychain item made with `dottide import-key`. Recommended. |
-| `file` | A path to the service account JSON key. Use this on machines without a keychain. Keep the file outside any repo and readable only by you (`chmod 600`). |
+| `keychain` | The name of a key stored with `dottide import-key`, in the macOS keychain, Windows Credential Manager or the Linux Secret Service. Recommended. |
+| `file` | A path to the service account JSON key. Use this on machines without a secret store, like a headless Linux server. Keep the file outside any repo and readable only by you (`chmod 600`). |
 
 A profile with only `[stores]` needs no `[key]` at all.
 
@@ -83,13 +83,13 @@ When several profiles list the same slug, `store_stats` counts it once.
 
 ## Keys
 
-Store a downloaded key in the keychain, then delete the file:
+Store a downloaded key in your system's secret store, then delete the file:
 
 ```
 uvx dottide import-key dottide-main ~/Downloads/key.json
 ```
 
-The command checks that the file is a Google service account key, stores it, and reads it back to confirm. The key is passed to the keychain on standard input, so it never shows up in the process list.
+The command checks that the file is a Google service account key, stores it, and reads it back to confirm. On macOS the key is passed to the keychain on standard input, so it never shows up in the process list. On Windows and Linux it goes through the `keyring` library, split into small chunks because Windows limits the size of one credential. Linux needs a running Secret Service, such as GNOME Keyring or KWallet; without one, use `file` and keep the file at mode 600. dotTide warns when a key file can be read by other users.
 
 To replace a key, create a new one in the Google Cloud console, run `import-key` again with the same name, then delete the old key in the console.
 

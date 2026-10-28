@@ -7,7 +7,7 @@
 
 dotTide is a read-only MCP server and command-line tool that gives Claude, Cursor, Codex and other AI agents the numbers for every site you run. It reads Google Search Console and Google Analytics 4 (GA4) across multiple Google accounts, plus WordPress.org, Firefox Add-ons and GitHub stats, and writes a weekly snapshot for scripts and agents.
 
-Nothing gets added to your sites. dotTide only reads numbers you already have, and your keys stay on your Mac.
+Nothing gets added to your sites. dotTide only reads numbers you already have, and your keys stay on your computer.
 
 ## Why
 
@@ -35,11 +35,11 @@ No site moves to a new Google account. You create one Google service account, an
 - **Search Console:** as a Restricted user.
 - **GA4:** as a Viewer.
 
-The service account can only read, and you can remove it from any site in one click. Its key lives in the macOS keychain.
+The service account can only read, and you can remove it from any site in one click. Its key lives in your system's secret store: the macOS keychain, Windows Credential Manager or the Linux Secret Service.
 
 ## Quick start
 
-You need macOS and [uv](https://docs.astral.sh/uv/). There is nothing to clone: `uvx` downloads dotTide the first time you run it.
+You need macOS, Windows or Linux, and [uv](https://docs.astral.sh/uv/). There is nothing to clone: `uvx` downloads dotTide the first time you run it.
 
 1. Write a starter profile, then add a plugin slug, an add-on slug or a GitHub user under `[stores]` in it:
 
