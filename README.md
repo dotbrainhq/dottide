@@ -3,6 +3,8 @@
   <img src="https://raw.githubusercontent.com/dotbrainhq/dottide/main/.github/assets/cover-light.png" alt="dotTide: every site's numbers, one place. Search Console, GA4 and store stats across Google accounts, for you and your AI agents. Local and read-only. Next to the text, the dotTide icon: a wave running across a green tile, with one dot under the surface.">
 </picture>
 
+<!-- mcp-name: io.github.dotbrainhq/dottide -->
+
 # dotTide
 
 dotTide is a read-only MCP server and command-line tool that gives Claude, Cursor, Codex and other AI agents the numbers for every site you run. It reads Google Search Console and Google Analytics 4 (GA4) across multiple Google accounts, plus WordPress.org, Firefox Add-ons and GitHub stats, and writes a weekly snapshot for scripts and agents.
