@@ -9,7 +9,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/dottide)](https://pypi.org/project/dottide/)
 [![MCP registry version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fregistry.modelcontextprotocol.io%2Fv0%2Fservers%3Fsearch%3Dio.github.dotbrainhq%2Fdottide%26version%3Dlatest&query=%24.servers%5B0%5D.server.version&label=MCP%20registry)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.dotbrainhq/dottide&version=latest)
-[![dotTide on Glama](https://glama.ai/mcp/servers/dotbrainhq/dottide/badge)](https://glama.ai/mcp/servers/dotbrainhq/dottide)
+[![dotTide on Glama](https://glama.ai/mcp/servers/dotbrainhq/dottide/badges/score.svg)](https://glama.ai/mcp/servers/dotbrainhq/dottide)
 [![cursor.directory](https://img.shields.io/badge/cursor.directory-listed-black)](https://cursor.directory/plugins/dottide)
 
 dotTide is a read-only MCP server and command-line tool that gives Claude, Cursor, Codex and other AI agents the numbers for every site you run. It reads Google Search Console and Google Analytics 4 (GA4) across multiple Google accounts, plus WordPress.org, Firefox Add-ons and GitHub stats, and writes a weekly snapshot for scripts and agents.
