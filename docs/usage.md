@@ -129,6 +129,18 @@ Finding GA4 properties needs the Google Analytics Admin API turned on in your Go
 
 In MCP clients, `discover` only reads: it returns what it found and the blocks to add, and you add them with the command above.
 
+## Ready-made prompts
+
+MCP clients that support prompts show these as commands. In Claude Code they appear in the `/` menu.
+
+| Prompt | Arguments | What the agent does |
+|---|---|---|
+| Weekly review | `site`, optional | Compares last week with the week before for every site (or one), lists the biggest movers, AI referrals and store changes, and ends with the most useful thing to do this week. |
+| What to work on | `site` | Calls `opportunities` and turns the three items with the most to gain into concrete changes. |
+| Index check | `site` | Calls `index_health` and explains each problem in a plain sentence. |
+
+Every prompt asks the agent to quote the numbers it used.
+
 ## From an MCP client
 
 Claude Code:

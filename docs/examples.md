@@ -70,6 +70,10 @@ Agents that can read files can work from the snapshot instead of calling Google:
 
 This is cheaper and faster for a weekly report, and every answer comes from the same saved numbers.
 
+## Ready-made prompts
+
+dotTide ships three prompts, Weekly review, What to work on and Index check, that MCP clients show as commands. In Claude Code, type `/` and look for the dotTide entries. The section below is for writing your own.
+
 ## A saved weekly prompt in Claude Code
 
 Save a prompt as a slash command so the weekly check is one line. Create `.claude/commands/weekly-numbers.md` in any project:

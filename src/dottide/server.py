@@ -21,7 +21,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 
 from dottide import discover as finder
-from dottide import indexhealth, keys, report, snapshot
+from dottide import indexhealth, keys, prompts, report, snapshot
 from dottide import opportunities as chances
 from dottide.config import init_profile
 
@@ -113,6 +113,25 @@ def discover(profile: str | None = None) -> dict:
     with ready-to-paste [[sites]] blocks for any site not in a profile yet. Reads only; the
     user adds the blocks with `dottide discover --write`."""
     return finder.discover(profile)
+
+
+@server.prompt(title="Weekly review")
+def weekly_review(site: str = "") -> str:
+    """Week-over-week review of every site, or one site: clicks, top movers, AI referrals and
+    store changes, ending with the most useful thing to do this week."""
+    return prompts.weekly_review(site)
+
+
+@server.prompt(title="What to work on")
+def what_to_work_on(site: str) -> str:
+    """The three changes with the most to gain on a site, from its opportunities."""
+    return prompts.what_to_work_on(site)
+
+
+@server.prompt(title="Index check")
+def index_check(site: str) -> str:
+    """Anything keeping a site's pages out of Google, in plain words."""
+    return prompts.index_check(site)
 
 
 def main() -> None:
