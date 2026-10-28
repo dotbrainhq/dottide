@@ -11,3 +11,9 @@ def test_prompts_name_the_tools_they_need():
     assert "`index_health`" in prompts.index_check("a.test")
     for text in (prompts.weekly_review(), prompts.what_to_work_on("a.test")):
         assert "Quote the numbers" in text
+
+
+def test_weekly_review_includes_bing_only_where_set_up():
+    text = prompts.weekly_review()
+    assert "`bing_queries`" in text
+    assert "Skip this step for sites without Bing" in text

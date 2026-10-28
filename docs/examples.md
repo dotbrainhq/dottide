@@ -46,6 +46,12 @@ The agent calls `traffic` with `compare` and reads `ai_referrals`. This only wor
 
 > Which sources besides Google sent the most engaged sessions to example.com in the last 28 days?
 
+## Bing
+
+> Use dotTide bing_queries for example.com over the last 90 days. Which queries bring clicks from Bing, and do they match my top Google queries?
+
+Bing powers Copilot's web answers, so queries that do well on Bing but not on Google are worth a look. This needs Bing set up (see [Bing setup](bing-setup.md)), and Bing reports by week, so longer ranges work best.
+
 ## Store numbers
 
 > Use dotTide store_stats. How many downloads did each of my WordPress.org plugins get over the last seven days, and is any support thread unresolved?
