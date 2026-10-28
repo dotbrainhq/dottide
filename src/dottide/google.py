@@ -15,6 +15,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/analytics.readonly",
 ]
 GSC = "https://searchconsole.googleapis.com/webmasters/v3"
+GSC_INSPECT = "https://searchconsole.googleapis.com/v1"
 GA4_DATA = "https://analyticsdata.googleapis.com/v1beta"
 GA4_ADMIN = "https://analyticsadmin.googleapis.com/v1beta"
 
@@ -124,3 +125,15 @@ def ga4_web_streams(profile: Profile) -> list[dict]:
         page = data.get("nextPageToken")
         if not page:
             return streams
+
+
+def gsc_sitemaps(profile: Profile, prop: str) -> list[dict]:
+    url = f"{GSC}/sites/{quote(prop, safe='')}/sitemaps"
+    return _call(profile, "GET", url).get("sitemap", [])
+
+
+def gsc_inspect(profile: Profile, prop: str, page: str) -> dict:
+    """Google's index status for one URL. Read-only; it never requests indexing."""
+    body = {"inspectionUrl": page, "siteUrl": prop}
+    data = _call(profile, "POST", f"{GSC_INSPECT}/urlInspection/index:inspect", json=body)
+    return data.get("inspectionResult", {}).get("indexStatusResult", {})

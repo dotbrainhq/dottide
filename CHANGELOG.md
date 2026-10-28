@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `index_health` checks every sitemap and the index status of a site's top pages, and lists the problems to fix.
 - `opportunities` lists what to work on next: queries in striking distance, pages and queries losing clicks, and page-one queries with a low click-through rate for their position.
 
 ## 0.2.0

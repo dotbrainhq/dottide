@@ -66,6 +66,28 @@ It returns four lists, each item with its own numbers:
 
 When few queries reach `min_impressions`, the result carries a `note` saying so.
 
+### `index_health`
+
+Whether a site is healthy in Google's index.
+
+```
+uvx dottide index_health example.com
+uvx dottide index_health example.com --pages 25
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `pages` | 10 | How many top pages by clicks to check, up to 50. |
+| `days` | 28 | The range used to pick the top pages. |
+
+It returns:
+
+- **`sitemaps`:** every sitemap Search Console knows for the property, with errors, warnings, how many URLs it submits, and how many days since Google last read it.
+- **`top_pages_checked`:** for each top page, Google's verdict, coverage state (like "Submitted and indexed" or "Crawled - currently not indexed"), robots.txt and fetch state, last crawl, and whether Google picked a different canonical than the page asks for.
+- **`problems`:** everything worth fixing, in plain words: sitemap errors, sitemaps Google hasn't read in over 30 days, pages not indexed, and canonical mismatches.
+
+Each page checked uses one call to Google's URL Inspection API, which allows 2,000 calls a day per property. dotTide only reads: it never submits a sitemap or asks Google to index a page.
+
 ### `traffic`
 
 GA4 sessions by source and medium, with AI assistant referrals counted on their own. Only for sites that have `ga4_property`.

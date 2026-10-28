@@ -5,6 +5,7 @@ dottide sites                print any report as JSON; also search_queries, traf
 dottide init                 write a starter profile to ~/.config/dottide/main.toml
 dottide discover [--write]   suggest profile entries for sites the key can read
 dottide opportunities SITE   queries and pages worth working on
+dottide index_health SITE    sitemap state and index status of the top pages
 dottide snapshot [--out DIR] write the weekly snapshot, one file per profile
 dottide import-key NAME FILE copy a service account key into the macOS keychain
 """
@@ -20,7 +21,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 
 from dottide import discover as finder
-from dottide import keys, report, snapshot
+from dottide import indexhealth, keys, report, snapshot
 from dottide import opportunities as chances
 from dottide.config import init_profile
 
@@ -97,6 +98,16 @@ def opportunities(
 
 
 @server.tool(annotations=READ_ONLY)
+def index_health(site: str, pages: int = 10, days: int = 28) -> dict:
+    """Is the site healthy in Google's index? Every sitemap Search Console knows (errors,
+    warnings, when Google last read it, URLs submitted) and the index status of the top `pages`
+    pages by clicks over the last `days` days (verdict, coverage, last crawl, Google's chosen
+    canonical). `problems` lists anything to fix in plain words. Reads only: it never submits a
+    sitemap or requests indexing. Each page checked uses one URL Inspection call."""
+    return indexhealth.index_health(site, pages, days)
+
+
+@server.tool(annotations=READ_ONLY)
 def discover(profile: str | None = None) -> dict:
     """Every Search Console property and GA4 web stream the key can read, matched by domain,
     with ready-to-paste [[sites]] blocks for any site not in a profile yet. Reads only; the
@@ -133,6 +144,10 @@ def main() -> None:
     o.add_argument("--days", type=int, default=28)
     o.add_argument("--min-impressions", type=int, default=5)
     o.add_argument("--limit", type=int, default=10)
+    h = sub.add_parser("index_health")
+    h.add_argument("site")
+    h.add_argument("--pages", type=int, default=10)
+    h.add_argument("--days", type=int, default=28)
     i = sub.add_parser("init")
     i.add_argument("--profile", default="main", help="profile name, which is also the file name")
     d = sub.add_parser("discover")
@@ -188,6 +203,8 @@ def _run(args: argparse.Namespace) -> None:
         result = chances.opportunities(
             args.site, args.start, args.end, args.days, args.min_impressions, args.limit
         )
+    elif args.command == "index_health":
+        result = indexhealth.index_health(args.site, args.pages, args.days)
     elif args.command == "traffic":
         result = report.traffic(
             args.site, args.start, args.end, args.days, args.compare, args.limit

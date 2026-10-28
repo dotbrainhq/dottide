@@ -32,6 +32,12 @@ Positions 8 to 20 are the bottom of page one and the top of page two, where a sm
 
 > Pick the three with the most impressions and suggest what each page is missing for that query.
 
+## Index problems
+
+> Use dotTide index_health for example.com. Is anything keeping my pages out of Google?
+
+The agent reads the `problems` list: sitemap errors, sitemaps Google stopped reading, top pages that aren't indexed, and pages where Google chose a different canonical.
+
 ## AI referrals
 
 > How many visits did AI assistants send to example.com this month compared with last month? Break it down by assistant.
