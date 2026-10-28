@@ -55,7 +55,7 @@ def _delta(now: dict, before: dict | None, fields: tuple[str, ...]) -> dict:
     for f in fields:
         old = (before or {}).get(f)
         out[f"previous_{f}"] = old
-        out[f"change_{f}"] = None if old is None else round(now[f] - old, 2)
+        out[f"change_{f}"] = None if old is None or now[f] is None else round(now[f] - old, 2)
     return out
 
 
@@ -121,36 +121,113 @@ def search_queries(
     days: int = 28,
     compare: bool = False,
     limit: int = 25,
+    country: str | None = None,
+    device: str | None = None,
+    search_type: str = "web",
 ) -> dict:
     if by not in ("query", "page"):
         raise ValueError("by must be 'query' or 'page'")
+    filters = google.search_filter(country, device, search_type)
+    if by == "query":
+        google.require_queries(filters)
     profile, s = find_site(load_profiles(), site)
     if not s.search_console:
         raise ValueError(f"{site} has no search_console property in its profile")
     first, last = period(start, end, days)
     fields = ("clicks", "impressions", "ctr", "position")
-    rows = google.gsc_query(profile, s.search_console, str(first), str(last), by, limit)
-    totals = google.gsc_query(profile, s.search_console, str(first), str(last), None).get(
-        "total", dict.fromkeys(fields, 0)
-    )
+    args = (profile, s.search_console, str(first), str(last))
+    rows = google.gsc_query(*args, by, limit, filters)
+    totals = google.gsc_query(*args, None, filters=filters).get("total", dict.fromkeys(fields, 0))
     result: dict = {
         "site": site,
         "property": s.search_console,
         "start": str(first),
         "end": str(last),
         "by": by,
+        "filters": filters,
     }
     if compare:
         p_first, p_last = previous(first, last)
         p_args = (profile, s.search_console, str(p_first), str(p_last))
-        before = google.gsc_query(*p_args, by, 5000)
-        p_totals = google.gsc_query(*p_args, None).get("total")
+        before = google.gsc_query(*p_args, by, 5000, filters)
+        p_totals = google.gsc_query(*p_args, None, filters=filters).get("total")
         result["previous_start"], result["previous_end"] = str(p_first), str(p_last)
         result["totals"] = _delta(totals, p_totals, fields)
         result["rows"] = [{by: k, **_delta(v, before.get(k), fields)} for k, v in rows.items()]
     else:
         result["totals"] = totals
         result["rows"] = [{by: k, **v} for k, v in rows.items()]
+    return result
+
+
+def _hidden(totals: dict, rows: dict[str, dict]) -> dict:
+    """Clicks and impressions Search Console counts for a page but keeps out of its query rows,
+    because Google anonymizes rare queries."""
+    hidden: dict = {}
+    for field in ("clicks", "impressions"):
+        missing = max(0, totals[field] - sum(r[field] for r in rows.values()))
+        hidden[field] = missing
+        hidden[f"{field}_share"] = round(missing / totals[field] * 100, 1) if totals[field] else 0
+    return hidden
+
+
+def page_queries(
+    site: str,
+    page: str,
+    start: str | None = None,
+    end: str | None = None,
+    days: int = 28,
+    compare: bool = False,
+    limit: int = 25,
+    country: str | None = None,
+    device: str | None = None,
+    search_type: str = "web",
+) -> dict:
+    if not page.startswith(("https://", "http://")):
+        raise ValueError("page takes the full URL, like https://example.com/pricing/")
+    filters = google.search_filter(country, device, search_type)
+    google.require_queries(filters)
+    profile, s = find_site(load_profiles(), site)
+    if not s.search_console:
+        raise ValueError(f"{site} has no search_console property in its profile")
+    first, last = period(start, end, days)
+    fields = ("clicks", "impressions", "ctr", "position")
+    on_page = {**filters, "page": page}
+
+    def read(a: date, b: date) -> tuple[dict, dict]:
+        args = (profile, s.search_console, str(a), str(b))
+        # Every query row, so the hidden share is measured against all of them, not the top few.
+        rows = google.gsc_query(*args, "query", 25_000, on_page)
+        totals = google.gsc_query(*args, None, filters=on_page).get(
+            "total", dict.fromkeys(fields, 0)
+        )
+        return rows, totals
+
+    rows, totals = read(first, last)
+    top = dict(list(rows.items())[:limit])
+    result: dict = {
+        "site": site,
+        "page": page,
+        "start": str(first),
+        "end": str(last),
+        "filters": filters,
+        "hidden": _hidden(totals, rows),
+    }
+    if compare:
+        p_first, p_last = previous(first, last)
+        before, p_totals = read(p_first, p_last)
+        result["previous_start"], result["previous_end"] = str(p_first), str(p_last)
+        result["totals"] = _delta(totals, p_totals if p_totals["impressions"] else None, fields)
+        result["previous_hidden"] = _hidden(p_totals, before)
+        result["rows"] = [{"query": k, **_delta(v, before.get(k), fields)} for k, v in top.items()]
+    else:
+        result["totals"] = totals
+        result["rows"] = [{"query": k, **v} for k, v in top.items()]
+    if not totals["impressions"]:
+        result["note"] = (
+            "No Search Console data for this page in the range. Check the exact URL, including "
+            "the trailing slash, with search_queries by page."
+        )
     return result
 
 

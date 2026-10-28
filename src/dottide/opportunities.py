@@ -8,6 +8,7 @@ queries at a similar position, not an outside benchmark.
 
 from __future__ import annotations
 
+from collections import defaultdict
 from statistics import median
 
 from dottide import google
@@ -87,7 +88,12 @@ def opportunities(
     days: int = 28,
     min_impressions: int = 5,
     limit: int = 10,
+    country: str | None = None,
+    device: str | None = None,
+    search_type: str = "web",
 ) -> dict:
+    filters = google.search_filter(country, device, search_type)
+    google.require_queries(filters)
     profile, s = find_site(load_profiles(), site)
     if not s.search_console:
         raise ValueError(f"{site} has no search_console property in its profile")
@@ -96,7 +102,7 @@ def opportunities(
     prop = s.search_console
 
     def rows(dimension: str, a, b) -> dict[str, dict]:
-        return google.gsc_query(profile, prop, str(a), str(b), dimension, ROWS)
+        return google.gsc_query(profile, prop, str(a), str(b), dimension, ROWS, filters)
 
     queries, pages = rows("query", first, last), rows("page", first, last)
     old_queries, old_pages = rows("query", p_first, p_last), rows("page", p_first, p_last)
@@ -107,6 +113,7 @@ def opportunities(
         "end": str(last),
         "previous_start": str(p_first),
         "previous_end": str(p_last),
+        "filters": filters,
         "min_impressions": min_impressions,
         "striking_distance": striking_distance(queries, min_impressions, limit),
         "losing_pages": losing(pages, old_pages, "page", limit),
@@ -117,5 +124,67 @@ def opportunities(
         result["note"] = (
             f"Few queries reach {min_impressions} impressions in this range, so the lists are "
             "short. Try a longer range or a lower min_impressions."
+        )
+    return result
+
+
+def competing(pairs: list[tuple[str, str, dict]], min_impressions: int, limit: int) -> list[dict]:
+    """Queries where two or more pages each get at least `min_impressions`, biggest first."""
+    by_query: dict[str, list[dict]] = defaultdict(list)
+    for query, page, numbers in pairs:
+        if numbers["impressions"] >= min_impressions:
+            by_query[query].append({"page": page, **numbers})
+    items = []
+    for query, pages in by_query.items():
+        if len(pages) < 2:
+            continue
+        pages.sort(key=lambda p: (-p["clicks"], -p["impressions"]))
+        clicks = sum(p["clicks"] for p in pages)
+        items.append(
+            {
+                "query": query,
+                "impressions": sum(p["impressions"] for p in pages),
+                "clicks": clicks,
+                "top_page": pages[0]["page"] if clicks else None,
+                "top_page_click_share": round(pages[0]["clicks"] / clicks * 100, 1)
+                if clicks
+                else None,
+                "pages": pages,
+            }
+        )
+    items.sort(key=lambda i: -i["impressions"])
+    return items[:limit]
+
+
+def competing_pages(
+    site: str,
+    start: str | None = None,
+    end: str | None = None,
+    days: int = 28,
+    min_impressions: int = 5,
+    limit: int = 10,
+    country: str | None = None,
+    device: str | None = None,
+    search_type: str = "web",
+) -> dict:
+    filters = google.search_filter(country, device, search_type)
+    google.require_queries(filters)
+    profile, s = find_site(load_profiles(), site)
+    if not s.search_console:
+        raise ValueError(f"{site} has no search_console property in its profile")
+    first, last = period(start, end, days)
+    pairs = google.gsc_pairs(profile, s.search_console, str(first), str(last), filters)
+    result: dict = {
+        "site": site,
+        "start": str(first),
+        "end": str(last),
+        "filters": filters,
+        "min_impressions": min_impressions,
+        "queries": competing(pairs, min_impressions, limit),
+    }
+    if not result["queries"]:
+        result["note"] = (
+            f"No query has two or more pages with {min_impressions}+ impressions each in this "
+            "range. Try a longer range or a lower min_impressions."
         )
     return result

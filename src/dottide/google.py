@@ -58,24 +58,97 @@ def gsc_properties(profile: Profile) -> list[str]:
     return [e["siteUrl"] for e in entries if e.get("permissionLevel") != "siteUnverifiedUser"]
 
 
-def gsc_query(
-    profile: Profile, prop: str, start: str, end: str, dimension: str | None, limit: int = 25
-) -> dict[str, dict]:
-    """Rows keyed by query or page. With no dimension, one row keyed "total"."""
+SEARCH_TYPES = ("web", "image", "video", "news", "discover", "googleNews")
+DEVICES = ("desktop", "mobile", "tablet")
+# The API refuses query rows for these two and reports no position.
+PAGES_ONLY = ("discover", "googleNews")
+MAX_PAIR_ROWS = 100_000
+
+
+def search_filter(
+    country: str | None = None, device: str | None = None, search_type: str = "web"
+) -> dict:
+    """Checked Search Console filters, in the form results echo them back."""
+    if search_type not in SEARCH_TYPES:
+        raise ValueError(f"search_type must be one of {', '.join(SEARCH_TYPES)}")
+    found: dict = {"search_type": search_type}
+    if country:
+        if len(country) != 3 or not country.isalpha():
+            raise ValueError("country takes a three-letter ISO 3166-1 code, like usa or bgd")
+        found["country"] = country.lower()
+    if device:
+        if device.lower() not in DEVICES:
+            raise ValueError(f"device must be one of {', '.join(DEVICES)}")
+        found["device"] = device.lower()
+    return found
+
+
+def require_queries(filters: dict) -> None:
+    if filters.get("search_type") in PAGES_ONLY:
+        raise ValueError(
+            f"{filters['search_type']} reports pages only: Search Console has no query rows "
+            "for it. Use search_queries with by='page'."
+        )
+
+
+def _body(start: str, end: str, limit: int, filters: dict | None) -> dict:
     body: dict = {"startDate": start, "endDate": end, "rowLimit": limit}
+    filters = filters or {}
+    if filters.get("search_type", "web") != "web":
+        body["type"] = filters["search_type"]
+    clauses = [
+        {"dimension": name, "operator": "equals", "expression": filters[name]}
+        for name in ("country", "device", "page")
+        if filters.get(name)
+    ]
+    if clauses:
+        body["dimensionFilterGroups"] = [{"filters": clauses}]
+    return body
+
+
+def _numbers(row: dict) -> dict:
+    position = row.get("position")
+    return {
+        "clicks": row["clicks"],
+        "impressions": row["impressions"],
+        "ctr": round(row.get("ctr", 0) * 100, 2),
+        "position": round(position, 1) if position is not None else None,
+    }
+
+
+def gsc_query(
+    profile: Profile,
+    prop: str,
+    start: str,
+    end: str,
+    dimension: str | None,
+    limit: int = 25,
+    filters: dict | None = None,
+) -> dict[str, dict]:
+    """Rows keyed by query or page. With no dimension, one row keyed "total". `filters` takes
+    search_filter()'s result, plus "page" to read a single page."""
+    body = _body(start, end, limit, filters)
     if dimension:
         body["dimensions"] = [dimension]
     url = f"{GSC}/sites/{quote(prop, safe='')}/searchAnalytics/query"
     rows = _call(profile, "POST", url, json=body).get("rows", [])
-    return {
-        (row["keys"][0] if dimension else "total"): {
-            "clicks": row["clicks"],
-            "impressions": row["impressions"],
-            "ctr": round(row["ctr"] * 100, 2),
-            "position": round(row["position"], 1),
-        }
-        for row in rows
-    }
+    return {(row["keys"][0] if dimension else "total"): _numbers(row) for row in rows}
+
+
+def gsc_pairs(
+    profile: Profile, prop: str, start: str, end: str, filters: dict | None = None
+) -> list[tuple[str, str, dict]]:
+    """Every query and page pair in the range, paged 25,000 rows at a time."""
+    url = f"{GSC}/sites/{quote(prop, safe='')}/searchAnalytics/query"
+    pairs: list[tuple[str, str, dict]] = []
+    while len(pairs) < MAX_PAIR_ROWS:
+        body = {**_body(start, end, 25_000, filters), "dimensions": ["query", "page"]}
+        body["startRow"] = len(pairs)
+        rows = _call(profile, "POST", url, json=body).get("rows", [])
+        pairs += [(row["keys"][0], row["keys"][1], _numbers(row)) for row in rows]
+        if len(rows) < 25_000:
+            break
+    return pairs
 
 
 def ga4_sources(profile: Profile, prop: str, start: str, end: str) -> list[dict]:

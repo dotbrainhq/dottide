@@ -20,10 +20,12 @@ dotTide reads all of it with one read-only key, and answers the same way in Clau
 ## What it does
 
 - **`sites`:** every configured site, which key covers it, and whether Search Console, GA4 and Bing access works when you ask.
-- **`search_queries`:** clicks, impressions, CTR and average position by query or page, for any date range, with an optional comparison to the previous period.
+- **`search_queries`:** clicks, impressions, CTR and average position by query or page, for any date range, with an optional comparison to the previous period and filters for country, device and search type.
 - **`traffic`:** GA4 sessions by source and medium, with AI assistant referrals (ChatGPT, Perplexity, Copilot, Gemini, Claude and others) counted separately. Only for sites that have GA4.
 - **`store_stats`:** live public numbers that need no key: WordPress.org plugins, Firefox Add-ons, GitHub stars.
 - **`opportunities`:** what to work on next: queries in striking distance, pages and queries losing clicks, and page-one queries with a low click-through rate for their position.
+- **`page_queries`:** the queries that bring people to one page, and how much of the page's traffic Google hides behind anonymized queries.
+- **`competing_pages`:** queries where two or more of your pages split the impressions, biggest overlaps first.
 - **`index_health`:** every sitemap's state, and whether the top pages are in Google's index, with a plain list of problems to fix.
 - **`core_web_vitals`:** real-user LCP, INP and CLS with Google's ratings when there's enough data, plus a lab run, from PageSpeed Insights.
 - **`bing_queries`:** Bing Webmaster Tools clicks, impressions and position by query. Bing feeds Copilot.

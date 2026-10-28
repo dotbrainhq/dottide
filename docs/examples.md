@@ -32,6 +32,26 @@ Positions 8 to 20 are the bottom of page one and the top of page two, where a sm
 
 > Pick the three with the most impressions and suggest what each page is missing for that query.
 
+## One page's queries
+
+> Use dotTide page_queries for https://example.com/pricing/. Which queries bring people to it, and how much of its traffic does Google hide?
+
+The agent reads `rows` for the queries and `hidden` for the rest. When `hidden` holds most of the clicks, the visible queries are only part of the story, so judge the page by its totals.
+
+## Pages competing for a query
+
+> Use dotTide competing_pages for example.com. Which queries have two of my pages fighting each other, and which page should own each one?
+
+For each overlap the agent sees every page's clicks, impressions and position. The usual fixes are to merge the weaker page into the stronger one, link from the weaker page to the owner, or rewrite the weaker page for a different query.
+
+## Mobile, one country, or Discover
+
+> Compare last week with the week before on example.com, mobile only.
+
+> Which pages on example.com got the most Discover impressions this month?
+
+The agent passes `device`, `country` or `search_type`. Discover and Google News only have page rows, so ask by page for those.
+
 ## Index problems
 
 > Use dotTide index_health for example.com. Is anything keeping my pages out of Google?
