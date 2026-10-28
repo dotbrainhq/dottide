@@ -1,0 +1,5 @@
+{"siteEntry": [
+  {"siteUrl": "sc-domain:a.test", "permissionLevel": "siteRestrictedUser"},
+  {"siteUrl": "https://b.test/", "permissionLevel": "siteOwner"},
+  {"siteUrl": "https://c.test/", "permissionLevel": "siteUnverifiedUser"}
+]}

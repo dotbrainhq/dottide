@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Tests run every Google and store reader against saved sample responses, with made-up data and no network calls.
 - Keys work on Windows (Credential Manager) and Linux (Secret Service) as well as macOS, and dotTide warns when a key file can be read by other users.
 - `core_web_vitals` reports real-user LCP, INP and CLS with Google's ratings, plus a lab run, from PageSpeed Insights, on the same service account.
 - Ready-made MCP prompts: Weekly review, What to work on, and Index check.

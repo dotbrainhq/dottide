@@ -1,0 +1,5 @@
+[
+  {"name": "small", "stargazers_count": 3, "forks_count": 1, "fork": false, "private": false},
+  {"name": "big", "stargazers_count": 40, "forks_count": 5, "fork": false, "private": false},
+  {"name": "forked", "stargazers_count": 900, "forks_count": 0, "fork": true, "private": false}
+]

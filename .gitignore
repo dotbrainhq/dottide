@@ -11,3 +11,4 @@ dist/
 *.toml
 !pyproject.toml
 !src/dottide/profile_template.toml
+!tests/fixtures/*.json
