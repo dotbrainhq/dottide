@@ -1,6 +1,6 @@
 [project]
 name = "dottide"
-version = "0.2.0"
+version = "0.3.0"
 description = "Read-only numbers for every site and product you run, across Google accounts, for people and AI agents."
 readme = "README.md"
 license = "MIT"
