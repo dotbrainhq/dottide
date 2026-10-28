@@ -1,0 +1,4 @@
+{"rows": [
+  {"keys": ["first query"], "clicks": 12, "impressions": 400, "ctr": 0.03, "position": 4.26},
+  {"keys": ["second query"], "clicks": 0, "impressions": 55, "ctr": 0, "position": 14.0}
+], "responseAggregationType": "byProperty"}

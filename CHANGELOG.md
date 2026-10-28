@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0
+
+- `opportunities` lists what to work on next: queries in striking distance, pages and queries losing clicks, and page-one queries with a low click-through rate for their position.
+- `index_health` checks every sitemap and the index status of a site's top pages, and lists the problems to fix.
+- `core_web_vitals` reports real-user LCP, INP and CLS with Google's ratings, plus a lab run, from PageSpeed Insights, on the same service account.
+- `bing_queries` reads Bing Webmaster Tools clicks, impressions and position by query, and `import-secret` stores its API key from a hidden prompt.
+- Ready-made MCP prompts: Weekly review, What to work on, and Index check.
+- Keys work on Windows (Credential Manager) and Linux (Secret Service) as well as macOS, and dotTide warns when a key file can be read by other users.
+- Tests run every Google and store reader against saved sample responses, with made-up data and no network calls.
+
 ## 0.2.0
 
 - Published on PyPI: `uvx dottide` runs it with nothing to clone.

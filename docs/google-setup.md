@@ -17,6 +17,7 @@ The service account never gets a password and never signs in anywhere. It can on
 
 1. Open [Google Search Console API](https://console.cloud.google.com/apis/library/searchconsole.googleapis.com) and select **Enable**.
 2. If any of your sites use GA4, also enable [Google Analytics Data API](https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com), which reads the numbers, and [Google Analytics Admin API](https://console.cloud.google.com/apis/library/analyticsadmin.googleapis.com), which lets `dottide discover` find your GA4 properties.
+3. For `core_web_vitals`, also enable [PageSpeed Insights API](https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com). It runs on the same service account, so there's no extra key, and the free quota is 25,000 checks a day.
 
 Check that the project picker still shows `dottide` before each **Enable**.
 
@@ -56,7 +57,7 @@ Do this signed in as whichever Google account owns the site. It can be a differe
 uvx dottide import-key dottide-main ~/Downloads/<downloaded-key>.json
 ```
 
-The command copies the key into the macOS keychain and reads it back to confirm. Then delete the downloaded file and empty the Trash.
+The command copies the key into your system's secret store (the macOS keychain, Windows Credential Manager or the Linux Secret Service) and reads it back to confirm. Then delete the downloaded file and empty the Trash.
 
 Make a profile in `~/.config/dottide/` with just the `[key]` section (see [Configuration](configuration.md)), then let dotTide find your sites and add them:
 
@@ -75,4 +76,4 @@ Every site should show `"search_console": "ok"`, and `"ga4": "ok"` where GA4 is 
 - **`not shared with this key`:** the site's owner hasn't added the service account email yet, or the property name in your profile differs from Search Console. `sites` prints the properties the key can see; copy the exact one.
 - **`Google API 403 ... has not been used in project`:** the API from step 2 isn't enabled in this project.
 - **`Google API 403 ... does not have sufficient permissions`** on GA4: the service account isn't a Viewer on that property, or the Property ID is wrong.
-- **`no keychain item`:** run the `import-key` command from step 6.
+- **`no stored key`:** run the `import-key` command from step 6.

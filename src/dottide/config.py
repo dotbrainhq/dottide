@@ -23,6 +23,7 @@ class Site:
     profile: str
     search_console: str | None = None
     ga4_property: str | None = None
+    bing: str | None = None
 
 
 @dataclass
@@ -30,6 +31,7 @@ class Profile:
     name: str
     keychain: str | None = None
     key_file: str | None = None
+    bing_keychain: str | None = None
     sites: list[Site] = field(default_factory=list)
     stores: dict = field(default_factory=dict)
 
@@ -66,6 +68,7 @@ def load_profile(path: Path) -> Profile:
         name=path.stem,
         keychain=key.get("keychain"),
         key_file=key.get("file"),
+        bing_keychain=data.get("bing", {}).get("keychain"),
         stores=data.get("stores", {}),
     )
     for entry in data.get("sites", []):
@@ -76,6 +79,7 @@ def load_profile(path: Path) -> Profile:
                 profile=profile.name,
                 search_console=entry.get("search_console"),
                 ga4_property=str(ga4) if ga4 else None,
+                bing=entry.get("bing"),
             )
         )
     return profile

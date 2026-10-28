@@ -1,6 +1,6 @@
 [project]
 name = "dottide"
-version = "0.2.0"
+version = "0.3.0"
 description = "Read-only numbers for every site and product you run, across Google accounts, for people and AI agents."
 readme = "README.md"
 license = "MIT"
@@ -12,6 +12,8 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Internet :: WWW/HTTP :: Site Management",
@@ -19,6 +21,7 @@ classifiers = [
 dependencies = [
     "google-auth[requests]>=2.40",
     "httpx>=0.28",
+    "keyring>=25; sys_platform != 'darwin'",
     "mcp>=2.3",
 ]
 
@@ -32,7 +35,7 @@ Changelog = "https://github.com/dotbrainhq/dottide/blob/main/CHANGELOG.md"
 dottide = "dottide.server:main"
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.6"]
+dev = ["keyring>=25", "pytest>=8", "ruff>=0.6"]
 
 [build-system]
 requires = ["hatchling"]

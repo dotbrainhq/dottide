@@ -22,11 +22,21 @@ When impressions hold steady and clicks fall, the page still shows up in search 
 
 ## Finding content to refresh
 
+> Use dotTide opportunities for example.com. What should I work on first?
+
+The agent calls `opportunities`, which returns queries in striking distance, pages and queries losing clicks, and page-one queries with a low click-through rate, each with its numbers. To do the same by hand:
+
 > On example.com, find queries from the last 28 days where the average position is between 8 and 20, sorted by impressions. Which pages rank for them?
 
 Positions 8 to 20 are the bottom of page one and the top of page two, where a small improvement moves a page into view. Follow up with:
 
 > Pick the three with the most impressions and suggest what each page is missing for that query.
+
+## Index problems
+
+> Use dotTide index_health for example.com. Is anything keeping my pages out of Google?
+
+The agent reads the `problems` list: sitemap errors, sitemaps Google stopped reading, top pages that aren't indexed, and pages where Google chose a different canonical.
 
 ## AI referrals
 
@@ -59,6 +69,10 @@ Agents that can read files can work from the snapshot instead of calling Google:
 > Read ~/growth/main-2026-W44.json and give me the three biggest changes from last week, each with its number.
 
 This is cheaper and faster for a weekly report, and every answer comes from the same saved numbers.
+
+## Ready-made prompts
+
+dotTide ships three prompts, Weekly review, What to work on and Index check, that MCP clients show as commands. In Claude Code, type `/` and look for the dotTide entries. The section below is for writing your own.
 
 ## A saved weekly prompt in Claude Code
 

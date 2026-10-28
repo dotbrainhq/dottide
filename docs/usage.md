@@ -44,6 +44,94 @@ uvx dottide search_queries example.com --start 2026-09-01 --end 2026-09-30 --lim
 
 The result carries `totals` for the whole site and `rows`. With `compare`, each number gains `previous_<field>` and `change_<field>`. A row that didn't exist in the previous period shows `null` there.
 
+### `opportunities`
+
+What to work on next for a site, worked out from Search Console.
+
+```
+uvx dottide opportunities example.com
+uvx dottide opportunities example.com --days 90 --min-impressions 20 --limit 20
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `min_impressions` | 5 | Skip queries seen fewer times than this. Raise it for big sites, lower it for small ones. |
+| `limit` | 10 | How many items in each list. |
+
+It returns four lists, each item with its own numbers:
+
+- **`striking_distance`:** queries at average position 8 to 20, most impressions first. These sit at the bottom of page one or the top of page two, where a better page can move them into view.
+- **`losing_pages`** and **`losing_queries`:** the biggest click drops against the previous period of the same length, including rows that disappeared.
+- **`low_ctr`:** page-one queries whose click-through rate is under half of the site's own median for that position band (1 to 3, 4 to 7, 8 to 10). A band needs at least three queries before it counts, so small sites may see none. Compare a low row's title and description with the query.
+
+When few queries reach `min_impressions`, the result carries a `note` saying so.
+
+### `index_health`
+
+Whether a site is healthy in Google's index.
+
+```
+uvx dottide index_health example.com
+uvx dottide index_health example.com --pages 25
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `pages` | 10 | How many top pages by clicks to check, up to 50. |
+| `days` | 28 | The range used to pick the top pages. |
+
+It returns:
+
+- **`sitemaps`:** every sitemap Search Console knows for the property, with errors, warnings, how many URLs it submits, and how many days since Google last read it.
+- **`top_pages_checked`:** for each top page, Google's verdict, coverage state (like "Submitted and indexed" or "Crawled - currently not indexed"), robots.txt and fetch state, last crawl, and whether Google picked a different canonical than the page asks for.
+- **`problems`:** everything worth fixing, in plain words: sitemap errors, sitemaps Google hasn't read in over 30 days, pages not indexed, and canonical mismatches.
+
+Each page checked uses one call to Google's URL Inspection API, which allows 2,000 calls a day per property. dotTide only reads: it never submits a sitemap or asks Google to index a page.
+
+### `core_web_vitals`
+
+Core Web Vitals for one page, from Google's PageSpeed Insights.
+
+```
+uvx dottide core_web_vitals example.com
+uvx dottide core_web_vitals example.com --page https://example.com/pricing/ --strategy desktop
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `page` | the site's home page | The full URL to test. |
+| `strategy` | `mobile` | `mobile` or `desktop`. Google ranks on mobile. |
+
+It returns:
+
+- **`page_field`** and **`site_field`:** real-user numbers from the Chrome UX Report for the page and for the whole site: the 75th percentile of LCP (milliseconds), INP (milliseconds) and CLS, each rated good, needs improvement or poor against Google's thresholds, and `passes` when all three are good. Small sites often have too few visits for these, and the result says so in a `note`.
+- **`lab`:** one simulated Lighthouse load: performance score out of 100, LCP, CLS, Total Blocking Time, First Contentful Paint and Speed Index. Lab numbers move a little between runs.
+
+One run takes 10 to 30 seconds. It needs the PageSpeed Insights API turned on in the key's Google Cloud project (see [Google setup](google-setup.md)).
+
+### `bing_queries`
+
+Bing Webmaster Tools clicks, impressions and average position by query, plus site totals.
+
+```
+uvx dottide bing_queries example.com
+uvx dottide bing_queries example.com --days 90 --limit 50
+```
+
+Bing updates these numbers about once a week, so short ranges can come back empty.
+
+To set it up once:
+
+1. Sign in to [Bing Webmaster Tools](https://www.bing.com/webmasters) and import your sites from Google Search Console. It takes one click and verifies them for you.
+2. Open Settings, then API access, and generate an API key. Don't paste it into a chat or a file.
+3. Store it from a hidden prompt, then add a `[bing]` section to your profile (see [Configuration](configuration.md)):
+
+```
+uvx dottide import-secret dottide-bing
+```
+
+`sites` then reports Bing access for each site too.
+
 ### `traffic`
 
 GA4 sessions by source and medium, with AI assistant referrals counted on their own. Only for sites that have `ga4_property`.
@@ -84,6 +172,18 @@ Without `--write` it prints the blocks so you can check them. With `--write` it 
 Finding GA4 properties needs the Google Analytics Admin API turned on in your Google Cloud project. Without it, discover still finds every Search Console property and prints a note with the link to turn the API on.
 
 In MCP clients, `discover` only reads: it returns what it found and the blocks to add, and you add them with the command above.
+
+## Ready-made prompts
+
+MCP clients that support prompts show these as commands. In Claude Code they appear in the `/` menu.
+
+| Prompt | Arguments | What the agent does |
+|---|---|---|
+| Weekly review | `site`, optional | Compares last week with the week before for every site (or one), lists the biggest movers, AI referrals and store changes, and ends with the most useful thing to do this week. |
+| What to work on | `site` | Calls `opportunities` and turns the three items with the most to gain into concrete changes. |
+| Index check | `site` | Calls `index_health` and explains each problem in a plain sentence. |
+
+Every prompt asks the agent to quote the numbers it used.
 
 ## From an MCP client
 
@@ -149,9 +249,11 @@ On macOS, a LaunchAgent can run the snapshot every Monday morning. Save this as 
 
 | Message | What to do |
 |---|---|
-| `no keychain item` | Run `dottide import-key` with the name in your profile's `[key]`. |
+| `no stored key` | Run `dottide import-key` with the name in your profile's `[key]`. |
 | `not shared with this key` | Add the service account email to that site in Search Console as a Restricted user, or copy the exact property name that `sites` lists. A new share can take a few minutes. |
 | `Google API 403 ... has not been used in project` | Turn on that API in the Google Cloud project that owns the key. See [Google setup](google-setup.md). |
 | `Google API 403 ... sufficient permissions` on GA4 | Add the service account as a Viewer on the property, and check the numeric property ID. |
+| `PageSpeed Insights API has not been used in project` | Turn on the PageSpeed Insights API in the key's Google Cloud project. |
+| `Bing API 400` or `401` | The Bing API key is wrong or was revoked. Generate a new one and run `import-secret` again. |
 | `unknown site` | The name isn't in any profile. The error lists the names that are. |
 | `GitHub rate limit, resets ...` | Wait until the time shown, or set `DOTTIDE_GITHUB_TOKEN`. |

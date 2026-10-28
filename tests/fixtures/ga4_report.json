@@ -1,0 +1,5 @@
+{"rows": [
+  {"dimensionValues": [{"value": "google"}, {"value": "organic"}], "metricValues": [{"value": "120"}, {"value": "60"}, {"value": "100"}]},
+  {"dimensionValues": [{"value": "chatgpt.com"}, {"value": "referral"}], "metricValues": [{"value": "7"}, {"value": "4"}, {"value": "6"}]},
+  {"dimensionValues": [{"value": "www.perplexity.ai"}, {"value": "referral"}], "metricValues": [{"value": "3"}, {"value": "1"}, {"value": "3"}]}
+]}

@@ -87,9 +87,21 @@ def sites() -> dict:
                 status["ga4"] = _ga4_check(profile, site.ga4_property)
             else:
                 status["ga4"] = "not used"
+            if profile.bing_keychain:
+                status["bing"] = _bing_check(profile, site)
             entry["sites"].append(status)
         report.append(entry)
     return {"profiles": report}
+
+
+def _bing_check(profile: Profile, site) -> str:
+    from dottide import bing
+
+    try:
+        listed = bing.user_sites(bing.api_key(profile))
+    except Exception as exc:  # noqa: BLE001
+        return str(exc)
+    return "ok" if bing.site_url(site) in listed else "not in Bing Webmaster Tools"
 
 
 def _ga4_check(profile: Profile, prop: str) -> str:

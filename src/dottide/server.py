@@ -4,13 +4,19 @@ dottide                      run the MCP server on stdio (what MCP clients call)
 dottide sites                print any report as JSON; also search_queries, traffic, store_stats
 dottide init                 write a starter profile to ~/.config/dottide/main.toml
 dottide discover [--write]   suggest profile entries for sites the key can read
+dottide opportunities SITE   queries and pages worth working on
+dottide index_health SITE    sitemap state and index status of the top pages
+dottide core_web_vitals SITE Core Web Vitals from PageSpeed Insights
+dottide bing_queries SITE    Bing Webmaster Tools clicks and impressions by query
 dottide snapshot [--out DIR] write the weekly snapshot, one file per profile
-dottide import-key NAME FILE copy a service account key into the macOS keychain
+dottide import-key NAME FILE copy a service account key into the system secret store
+dottide import-secret NAME   store an API key (like Bing's) from a hidden prompt
 """
 
 from __future__ import annotations
 
 import argparse
+import getpass
 import json
 import logging
 import sys
@@ -18,8 +24,9 @@ import sys
 from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 
+from dottide import bing, indexhealth, keys, prompts, report, snapshot, vitals
 from dottide import discover as finder
-from dottide import keys, report, snapshot
+from dottide import opportunities as chances
 from dottide.config import init_profile
 
 READ_ONLY = ToolAnnotations(read_only_hint=True, open_world_hint=True)
@@ -79,11 +86,80 @@ def store_stats(profile: str | None = None) -> dict:
 
 
 @server.tool(annotations=READ_ONLY)
+def opportunities(
+    site: str,
+    start: str | None = None,
+    end: str | None = None,
+    days: int = 28,
+    min_impressions: int = 5,
+    limit: int = 10,
+) -> dict:
+    """What to work on next for a site, from Search Console: queries in striking distance
+    (position 8 to 20, by impressions), pages and queries that lost the most clicks against the
+    previous period, and page-one queries whose CTR is under half the site's own median for
+    that position. Every item carries its numbers. Same date rules as search_queries."""
+    return chances.opportunities(site, start, end, days, min_impressions, limit)
+
+
+@server.tool(annotations=READ_ONLY)
+def index_health(site: str, pages: int = 10, days: int = 28) -> dict:
+    """Is the site healthy in Google's index? Every sitemap Search Console knows (errors,
+    warnings, when Google last read it, URLs submitted) and the index status of the top `pages`
+    pages by clicks over the last `days` days (verdict, coverage, last crawl, Google's chosen
+    canonical). `problems` lists anything to fix in plain words. Reads only: it never submits a
+    sitemap or requests indexing. Each page checked uses one URL Inspection call."""
+    return indexhealth.index_health(site, pages, days)
+
+
+@server.tool(annotations=READ_ONLY)
+def core_web_vitals(site: str, page: str | None = None, strategy: str = "mobile") -> dict:
+    """Core Web Vitals for a page (default: the site's home page) from PageSpeed Insights.
+    page_field and site_field hold real-user 75th-percentile LCP, INP and CLS with Google's
+    good / needs improvement / poor rating, when Google has enough visits; lab holds one
+    Lighthouse run (performance score, LCP, CLS, TBT, FCP, Speed Index). strategy is "mobile"
+    or "desktop". One run takes 10 to 30 seconds."""
+    return vitals.core_web_vitals(site, page, strategy)
+
+
+@server.tool(annotations=READ_ONLY)
+def bing_queries(
+    site: str,
+    start: str | None = None,
+    end: str | None = None,
+    days: int = 28,
+    limit: int = 25,
+) -> dict:
+    """Bing Webmaster Tools clicks, impressions and average position by query, plus site
+    totals, for a range. Bing feeds Copilot. Needs a [bing] key in the site's profile. Bing
+    updates these numbers about once a week."""
+    return bing.bing_queries(site, start, end, days, limit)
+
+
+@server.tool(annotations=READ_ONLY)
 def discover(profile: str | None = None) -> dict:
     """Every Search Console property and GA4 web stream the key can read, matched by domain,
     with ready-to-paste [[sites]] blocks for any site not in a profile yet. Reads only; the
     user adds the blocks with `dottide discover --write`."""
     return finder.discover(profile)
+
+
+@server.prompt(title="Weekly review")
+def weekly_review(site: str = "") -> str:
+    """Week-over-week review of every site, or one site: clicks, top movers, AI referrals and
+    store changes, ending with the most useful thing to do this week."""
+    return prompts.weekly_review(site)
+
+
+@server.prompt(title="What to work on")
+def what_to_work_on(site: str) -> str:
+    """The three changes with the most to gain on a site, from its opportunities."""
+    return prompts.what_to_work_on(site)
+
+
+@server.prompt(title="Index check")
+def index_check(site: str) -> str:
+    """Anything keeping a site's pages out of Google, in plain words."""
+    return prompts.index_check(site)
 
 
 def main() -> None:
@@ -108,6 +184,27 @@ def main() -> None:
         p.add_argument("--limit", type=int, default=25)
     s = sub.add_parser("store_stats")
     s.add_argument("--profile")
+    o = sub.add_parser("opportunities")
+    o.add_argument("site")
+    o.add_argument("--start")
+    o.add_argument("--end")
+    o.add_argument("--days", type=int, default=28)
+    o.add_argument("--min-impressions", type=int, default=5)
+    o.add_argument("--limit", type=int, default=10)
+    h = sub.add_parser("index_health")
+    h.add_argument("site")
+    h.add_argument("--pages", type=int, default=10)
+    h.add_argument("--days", type=int, default=28)
+    v = sub.add_parser("core_web_vitals")
+    v.add_argument("site")
+    v.add_argument("--page", help="full URL to test; default is the site's home page")
+    v.add_argument("--strategy", default="mobile", choices=["mobile", "desktop"])
+    b = sub.add_parser("bing_queries")
+    b.add_argument("site")
+    b.add_argument("--start")
+    b.add_argument("--end")
+    b.add_argument("--days", type=int, default=28)
+    b.add_argument("--limit", type=int, default=25)
     i = sub.add_parser("init")
     i.add_argument("--profile", default="main", help="profile name, which is also the file name")
     d = sub.add_parser("discover")
@@ -115,8 +212,10 @@ def main() -> None:
     d.add_argument("--write", action="store_true", help="append the new sites to the profile")
     snap = sub.add_parser("snapshot")
     snap.add_argument("--out", help="folder for <profile>-<year>-W<week>.json; stdout if absent")
+    sec = sub.add_parser("import-secret")
+    sec.add_argument("name", help="name for the stored secret, for example dottide-bing")
     k = sub.add_parser("import-key")
-    k.add_argument("name", help="keychain item name, for example dottide-main")
+    k.add_argument("name", help="name for the stored key, for example dottide-main")
     k.add_argument("file", help="path to the downloaded service account JSON key")
     args = parser.parse_args()
     try:
@@ -128,7 +227,11 @@ def main() -> None:
 
 def _run(args: argparse.Namespace) -> None:
     if args.command == "import-key":
-        print(f"stored {keys.store(args.name, args.file)} in keychain item {args.name}")
+        print(f"stored {keys.store(args.name, args.file)} in the secret store as {args.name}")
+        return
+    if args.command == "import-secret":
+        keys.store_secret(args.name, getpass.getpass(f"Paste the secret for {args.name}: "))
+        print(f"stored {args.name} in the secret store")
         return
     if args.command == "init":
         path = init_profile(args.profile)
@@ -159,6 +262,16 @@ def _run(args: argparse.Namespace) -> None:
         result = report.search_queries(
             args.site, args.by, args.start, args.end, args.days, args.compare, args.limit
         )
+    elif args.command == "opportunities":
+        result = chances.opportunities(
+            args.site, args.start, args.end, args.days, args.min_impressions, args.limit
+        )
+    elif args.command == "index_health":
+        result = indexhealth.index_health(args.site, args.pages, args.days)
+    elif args.command == "core_web_vitals":
+        result = vitals.core_web_vitals(args.site, args.page, args.strategy)
+    elif args.command == "bing_queries":
+        result = bing.bing_queries(args.site, args.start, args.end, args.days, args.limit)
     elif args.command == "traffic":
         result = report.traffic(
             args.site, args.start, args.end, args.days, args.compare, args.limit

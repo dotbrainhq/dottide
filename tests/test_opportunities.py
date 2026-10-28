@@ -1,0 +1,39 @@
+from dottide import opportunities as op
+
+
+def row(clicks, impressions, position):
+    ctr = round(clicks / impressions * 100, 2) if impressions else 0
+    return {"clicks": clicks, "impressions": impressions, "ctr": ctr, "position": position}
+
+
+def test_striking_distance_keeps_positions_8_to_20_by_impressions():
+    rows = {"a": row(1, 50, 9.0), "b": row(0, 80, 15.2), "c": row(5, 90, 3.0), "d": row(0, 2, 12.0)}
+    got = op.striking_distance(rows, min_impressions=5, limit=10)
+    assert [r["query"] for r in got] == ["b", "a"]
+
+
+def test_losing_includes_rows_that_vanished():
+    before = {"/a": row(10, 100, 4.0), "/b": row(3, 40, 6.0), "/c": row(1, 10, 9.0)}
+    now = {"/a": row(4, 90, 5.0), "/c": row(2, 12, 8.0)}
+    got = op.losing(now, before, "page", limit=10)
+    assert [(r["page"], r["change_clicks"]) for r in got] == [("/a", -6), ("/b", -3)]
+    assert got[1]["position"] is None
+
+
+def test_low_ctr_compares_with_the_sites_own_band_median():
+    rows = {
+        "good1": row(10, 100, 2.0),
+        "good2": row(12, 100, 2.4),
+        "good3": row(9, 100, 1.6),
+        "weak": row(1, 200, 2.0),
+        "tiny": row(0, 3, 2.0),
+    }
+    got = op.low_ctr(rows, min_impressions=5, limit=10)
+    assert [r["query"] for r in got] == ["weak"]
+    assert got[0]["band"] == "1-3"
+    assert got[0]["band_median_ctr"] == 9.5
+
+
+def test_low_ctr_needs_enough_rows_in_a_band():
+    rows = {"a": row(10, 100, 5.0), "b": row(0, 100, 5.0)}
+    assert op.low_ctr(rows, min_impressions=5, limit=10) == []
