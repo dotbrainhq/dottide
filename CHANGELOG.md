@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+- `page_queries` shows the queries behind one page, with the page's own totals and the clicks and impressions Google hides behind anonymized queries.
+- `competing_pages` lists queries where two or more pages split the impressions, with every page's numbers and the page that wins most clicks. The What to work on prompt checks it.
+- `search_queries`, `opportunities` and the two new tools take `country`, `device` and `search_type` filters, and every result repeats the filters it used. Discover and Google News give a plain error when asked for query rows, since Search Console has none for them.
+
 ## 0.3.1
 
 - Bing setup has its own guide, linked from the README, and the Weekly review prompt includes Bing numbers where Bing is set up.

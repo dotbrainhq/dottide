@@ -5,6 +5,8 @@ dottide sites                print any report as JSON; also search_queries, traf
 dottide init                 write a starter profile to ~/.config/dottide/main.toml
 dottide discover [--write]   suggest profile entries for sites the key can read
 dottide opportunities SITE   queries and pages worth working on
+dottide page_queries SITE URL one page's queries and the share Google hides
+dottide competing_pages SITE queries where two or more pages compete
 dottide index_health SITE    sitemap state and index status of the top pages
 dottide core_web_vitals SITE Core Web Vitals from PageSpeed Insights
 dottide bing_queries SITE    Bing Webmaster Tools clicks and impressions by query
@@ -28,6 +30,7 @@ from dottide import bing, indexhealth, keys, prompts, report, snapshot, vitals
 from dottide import discover as finder
 from dottide import opportunities as chances
 from dottide.config import init_profile
+from dottide.google import SEARCH_TYPES
 
 READ_ONLY = ToolAnnotations(read_only_hint=True, open_world_hint=True)
 
@@ -57,11 +60,42 @@ def search_queries(
     days: int = 28,
     compare: bool = False,
     limit: int = 25,
+    country: str | None = None,
+    device: str | None = None,
+    search_type: str = "web",
 ) -> dict:
     """Search Console clicks, impressions, CTR (percent) and average position, by "query" or
     "page". Dates are YYYY-MM-DD; without them the range is the last `days` days ending three
-    days ago. compare=true adds the previous period of the same length and the change."""
-    return report.search_queries(site, by, start, end, days, compare, limit)
+    days ago. compare=true adds the previous period of the same length and the change.
+    Optional filters: country (three-letter ISO code like "usa"), device ("desktop", "mobile"
+    or "tablet") and search_type ("web", "image", "video", "news", "discover" or
+    "googleNews"; default "web"). Discover and Google News have page rows only. The result
+    echoes the filters it used."""
+    return report.search_queries(
+        site, by, start, end, days, compare, limit, country, device, search_type
+    )
+
+
+@server.tool(annotations=READ_ONLY)
+def page_queries(
+    site: str,
+    page: str,
+    start: str | None = None,
+    end: str | None = None,
+    days: int = 28,
+    compare: bool = False,
+    limit: int = 25,
+    country: str | None = None,
+    device: str | None = None,
+    search_type: str = "web",
+) -> dict:
+    """The queries that bring people to one page (full URL), with the page's own totals and
+    `hidden`: the clicks and impressions Search Console counts for the page but leaves out of
+    its query rows, because Google anonymizes rare queries. Same dates, compare and filters as
+    search_queries."""
+    return report.page_queries(
+        site, page, start, end, days, compare, limit, country, device, search_type
+    )
 
 
 @server.tool(annotations=READ_ONLY)
@@ -93,12 +127,39 @@ def opportunities(
     days: int = 28,
     min_impressions: int = 5,
     limit: int = 10,
+    country: str | None = None,
+    device: str | None = None,
+    search_type: str = "web",
 ) -> dict:
     """What to work on next for a site, from Search Console: queries in striking distance
     (position 8 to 20, by impressions), pages and queries that lost the most clicks against the
     previous period, and page-one queries whose CTR is under half the site's own median for
-    that position. Every item carries its numbers. Same date rules as search_queries."""
-    return chances.opportunities(site, start, end, days, min_impressions, limit)
+    that position. Every item carries its numbers. Same date rules and filters as
+    search_queries, except Discover and Google News, which have no query rows."""
+    return chances.opportunities(
+        site, start, end, days, min_impressions, limit, country, device, search_type
+    )
+
+
+@server.tool(annotations=READ_ONLY)
+def competing_pages(
+    site: str,
+    start: str | None = None,
+    end: str | None = None,
+    days: int = 28,
+    min_impressions: int = 5,
+    limit: int = 10,
+    country: str | None = None,
+    device: str | None = None,
+    search_type: str = "web",
+) -> dict:
+    """Queries where two or more pages of the site each get at least `min_impressions`, so they
+    split the clicks (cannibalization). For each query: every page with its clicks, impressions
+    and position, the page with most clicks and its share. Biggest overlaps first. Same dates
+    and filters as search_queries."""
+    return chances.competing_pages(
+        site, start, end, days, min_impressions, limit, country, device, search_type
+    )
 
 
 @server.tool(annotations=READ_ONLY)
@@ -174,9 +235,12 @@ def main() -> None:
     q = sub.add_parser("search_queries")
     q.add_argument("site")
     q.add_argument("--by", default="query", choices=["query", "page"])
+    pq = sub.add_parser("page_queries")
+    pq.add_argument("site")
+    pq.add_argument("page", help="the page's full URL")
     t = sub.add_parser("traffic")
     t.add_argument("site")
-    for p in (q, t):
+    for p in (q, pq, t):
         p.add_argument("--start")
         p.add_argument("--end")
         p.add_argument("--days", type=int, default=28)
@@ -191,6 +255,17 @@ def main() -> None:
     o.add_argument("--days", type=int, default=28)
     o.add_argument("--min-impressions", type=int, default=5)
     o.add_argument("--limit", type=int, default=10)
+    c = sub.add_parser("competing_pages")
+    c.add_argument("site")
+    c.add_argument("--start")
+    c.add_argument("--end")
+    c.add_argument("--days", type=int, default=28)
+    c.add_argument("--min-impressions", type=int, default=5)
+    c.add_argument("--limit", type=int, default=10)
+    for p in (q, pq, o, c):
+        p.add_argument("--country", help="three-letter ISO code, like usa")
+        p.add_argument("--device", choices=["desktop", "mobile", "tablet"])
+        p.add_argument("--search-type", default="web", choices=list(SEARCH_TYPES))
     h = sub.add_parser("index_health")
     h.add_argument("site")
     h.add_argument("--pages", type=int, default=10)
@@ -223,6 +298,10 @@ def main() -> None:
     except (OSError, ValueError, RuntimeError) as exc:
         # Expected problems (missing key, unknown site, existing file) get one clear line.
         sys.exit(f"dottide: {exc}")
+
+
+def _filters(args: argparse.Namespace) -> tuple:
+    return args.country, args.device, args.search_type
 
 
 def _run(args: argparse.Namespace) -> None:
@@ -260,11 +339,45 @@ def _run(args: argparse.Namespace) -> None:
         result = report.sites()
     elif args.command == "search_queries":
         result = report.search_queries(
-            args.site, args.by, args.start, args.end, args.days, args.compare, args.limit
+            args.site,
+            args.by,
+            args.start,
+            args.end,
+            args.days,
+            args.compare,
+            args.limit,
+            *_filters(args),
+        )
+    elif args.command == "page_queries":
+        result = report.page_queries(
+            args.site,
+            args.page,
+            args.start,
+            args.end,
+            args.days,
+            args.compare,
+            args.limit,
+            *_filters(args),
         )
     elif args.command == "opportunities":
         result = chances.opportunities(
-            args.site, args.start, args.end, args.days, args.min_impressions, args.limit
+            args.site,
+            args.start,
+            args.end,
+            args.days,
+            args.min_impressions,
+            args.limit,
+            *_filters(args),
+        )
+    elif args.command == "competing_pages":
+        result = chances.competing_pages(
+            args.site,
+            args.start,
+            args.end,
+            args.days,
+            args.min_impressions,
+            args.limit,
+            *_filters(args),
         )
     elif args.command == "index_health":
         result = indexhealth.index_health(args.site, args.pages, args.days)

@@ -10,6 +10,24 @@ Search Console data settles about three days after the fact. Every range that do
 - **`start` and `end`:** exact dates as `YYYY-MM-DD`. They override `days`.
 - **`compare`:** adds the previous period of the same length, right before the range, with the change for each number.
 
+## Filters
+
+`search_queries`, `page_queries`, `opportunities` and `competing_pages` take three optional filters. Every result repeats the filters it used under `filters`.
+
+| Option | Values | Meaning |
+|---|---|---|
+| `country` | A three-letter ISO 3166-1 code, like `usa` or `bgd` | Only searches from that country. |
+| `device` | `desktop`, `mobile` or `tablet` | Only searches from that kind of device. |
+| `search_type` | `web` (default), `image`, `video`, `news`, `discover` or `googleNews` | Which Google surface the numbers come from. |
+
+Discover and Google News report pages only: Search Console has no query rows and no position for them. Use `search_queries` with `by` set to `page` for those two.
+
+```
+uvx dottide search_queries example.com --device mobile --compare
+uvx dottide search_queries example.com --by page --search-type discover
+uvx dottide opportunities example.com --country usa
+```
+
 ## The tools
 
 ### `sites`
@@ -44,6 +62,22 @@ uvx dottide search_queries example.com --start 2026-09-01 --end 2026-09-30 --lim
 
 The result carries `totals` for the whole site and `rows`. With `compare`, each number gains `previous_<field>` and `change_<field>`. A row that didn't exist in the previous period shows `null` there.
 
+### `page_queries`
+
+The queries that bring people to one page, and the share of the page's traffic Google doesn't show.
+
+```
+uvx dottide page_queries example.com https://example.com/pricing/
+uvx dottide page_queries example.com https://example.com/pricing/ --compare --device mobile
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `page` | required | The page's full URL, exactly as `search_queries` by page lists it, trailing slash included. |
+| `limit` | 25 | How many query rows to show, biggest first. |
+
+The result has the page's own `totals`, its query `rows`, and `hidden`. Search Console leaves rare queries out of query rows to protect searchers' privacy, but still counts them in the page's totals. `hidden` is the difference: the clicks and impressions from queries Google doesn't show, and each one's share of the page's total. On a small site this is often most of the clicks. With `compare`, `previous_hidden` holds the same numbers for the previous period.
+
 ### `opportunities`
 
 What to work on next for a site, worked out from Search Console.
@@ -65,6 +99,22 @@ It returns four lists, each item with its own numbers:
 - **`low_ctr`:** page-one queries whose click-through rate is under half of the site's own median for that position band (1 to 3, 4 to 7, 8 to 10). A band needs at least three queries before it counts, so small sites may see none. Compare a low row's title and description with the query.
 
 When few queries reach `min_impressions`, the result carries a `note` saying so.
+
+### `competing_pages`
+
+Queries where two or more of a site's pages get impressions, so they split the clicks and often both rank lower. This is sometimes called cannibalization.
+
+```
+uvx dottide competing_pages example.com
+uvx dottide competing_pages example.com --days 90 --min-impressions 10
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `min_impressions` | 5 | A page counts only when it has at least this many impressions for the query. |
+| `limit` | 10 | How many queries to list. |
+
+Each item has the query, its total impressions and clicks, every competing page with its own numbers, `top_page` (the page with the most clicks) and that page's share of the clicks. The biggest overlaps come first. When no query has two pages over `min_impressions`, the result carries a `note`.
 
 ### `index_health`
 
@@ -168,7 +218,7 @@ MCP clients that support prompts show these as commands. In Claude Code they app
 | Prompt | Arguments | What the agent does |
 |---|---|---|
 | Weekly review | `site`, optional | Compares last week with the week before for every site (or one), lists the biggest movers, AI referrals, Bing numbers where set up, and store changes, and ends with the most useful thing to do this week. |
-| What to work on | `site` | Calls `opportunities` and turns the three items with the most to gain into concrete changes. |
+| What to work on | `site` | Calls `opportunities` and `competing_pages`, and turns the three items with the most to gain into concrete changes. |
 | Index check | `site` | Calls `index_health` and explains each problem in a plain sentence. |
 
 Every prompt asks the agent to quote the numbers it used.
@@ -243,5 +293,8 @@ On macOS, a LaunchAgent can run the snapshot every Monday morning. Save this as 
 | `Google API 403 ... sufficient permissions` on GA4 | Add the service account as a Viewer on the property, and check the numeric property ID. |
 | `PageSpeed Insights API has not been used in project` | Turn on the PageSpeed Insights API in the key's Google Cloud project. |
 | `Bing API 400` or `401` | The Bing API key is wrong or was revoked. Generate a new one and run `import-secret` again. |
+| `reports pages only` | Discover and Google News have no query rows. Use `search_queries` with `by` set to `page`. |
+| `country takes a three-letter ISO 3166-1 code` | Use the three-letter code, like `usa`, not `us`. |
+| `page takes the full URL` | Pass the whole address, like `https://example.com/pricing/`. |
 | `unknown site` | The name isn't in any profile. The error lists the names that are. |
 | `GitHub rate limit, resets ...` | Wait until the time shown, or set `DOTTIDE_GITHUB_TOKEN`. |
