@@ -17,6 +17,7 @@ The service account never gets a password and never signs in anywhere. It can on
 
 1. Open [Google Search Console API](https://console.cloud.google.com/apis/library/searchconsole.googleapis.com) and select **Enable**.
 2. If any of your sites use GA4, also enable [Google Analytics Data API](https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com), which reads the numbers, and [Google Analytics Admin API](https://console.cloud.google.com/apis/library/analyticsadmin.googleapis.com), which lets `dottide discover` find your GA4 properties.
+3. For `core_web_vitals`, also enable [PageSpeed Insights API](https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com). It runs on the same service account, so there's no extra key, and the free quota is 25,000 checks a day.
 
 Check that the project picker still shows `dottide` before each **Enable**.
 

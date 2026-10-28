@@ -88,6 +88,27 @@ It returns:
 
 Each page checked uses one call to Google's URL Inspection API, which allows 2,000 calls a day per property. dotTide only reads: it never submits a sitemap or asks Google to index a page.
 
+### `core_web_vitals`
+
+Core Web Vitals for one page, from Google's PageSpeed Insights.
+
+```
+uvx dottide core_web_vitals example.com
+uvx dottide core_web_vitals example.com --page https://example.com/pricing/ --strategy desktop
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `page` | the site's home page | The full URL to test. |
+| `strategy` | `mobile` | `mobile` or `desktop`. Google ranks on mobile. |
+
+It returns:
+
+- **`page_field`** and **`site_field`:** real-user numbers from the Chrome UX Report for the page and for the whole site: the 75th percentile of LCP (milliseconds), INP (milliseconds) and CLS, each rated good, needs improvement or poor against Google's thresholds, and `passes` when all three are good. Small sites often have too few visits for these, and the result says so in a `note`.
+- **`lab`:** one simulated Lighthouse load: performance score out of 100, LCP, CLS, Total Blocking Time, First Contentful Paint and Speed Index. Lab numbers move a little between runs.
+
+One run takes 10 to 30 seconds. It needs the PageSpeed Insights API turned on in the key's Google Cloud project (see [Google setup](google-setup.md)).
+
 ### `traffic`
 
 GA4 sessions by source and medium, with AI assistant referrals counted on their own. Only for sites that have `ga4_property`.
@@ -209,5 +230,6 @@ On macOS, a LaunchAgent can run the snapshot every Monday morning. Save this as 
 | `not shared with this key` | Add the service account email to that site in Search Console as a Restricted user, or copy the exact property name that `sites` lists. A new share can take a few minutes. |
 | `Google API 403 ... has not been used in project` | Turn on that API in the Google Cloud project that owns the key. See [Google setup](google-setup.md). |
 | `Google API 403 ... sufficient permissions` on GA4 | Add the service account as a Viewer on the property, and check the numeric property ID. |
+| `PageSpeed Insights API has not been used in project` | Turn on the PageSpeed Insights API in the key's Google Cloud project. |
 | `unknown site` | The name isn't in any profile. The error lists the names that are. |
 | `GitHub rate limit, resets ...` | Wait until the time shown, or set `DOTTIDE_GITHUB_TOKEN`. |

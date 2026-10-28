@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `core_web_vitals` reports real-user LCP, INP and CLS with Google's ratings, plus a lab run, from PageSpeed Insights, on the same service account.
 - Ready-made MCP prompts: Weekly review, What to work on, and Index check.
 - `index_health` checks every sitemap and the index status of a site's top pages, and lists the problems to fix.
 - `opportunities` lists what to work on next: queries in striking distance, pages and queries losing clicks, and page-one queries with a low click-through rate for their position.

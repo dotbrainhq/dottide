@@ -6,6 +6,7 @@ dottide init                 write a starter profile to ~/.config/dottide/main.t
 dottide discover [--write]   suggest profile entries for sites the key can read
 dottide opportunities SITE   queries and pages worth working on
 dottide index_health SITE    sitemap state and index status of the top pages
+dottide core_web_vitals SITE Core Web Vitals from PageSpeed Insights
 dottide snapshot [--out DIR] write the weekly snapshot, one file per profile
 dottide import-key NAME FILE copy a service account key into the macOS keychain
 """
@@ -21,7 +22,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 
 from dottide import discover as finder
-from dottide import indexhealth, keys, prompts, report, snapshot
+from dottide import indexhealth, keys, prompts, report, snapshot, vitals
 from dottide import opportunities as chances
 from dottide.config import init_profile
 
@@ -108,6 +109,16 @@ def index_health(site: str, pages: int = 10, days: int = 28) -> dict:
 
 
 @server.tool(annotations=READ_ONLY)
+def core_web_vitals(site: str, page: str | None = None, strategy: str = "mobile") -> dict:
+    """Core Web Vitals for a page (default: the site's home page) from PageSpeed Insights.
+    page_field and site_field hold real-user 75th-percentile LCP, INP and CLS with Google's
+    good / needs improvement / poor rating, when Google has enough visits; lab holds one
+    Lighthouse run (performance score, LCP, CLS, TBT, FCP, Speed Index). strategy is "mobile"
+    or "desktop". One run takes 10 to 30 seconds."""
+    return vitals.core_web_vitals(site, page, strategy)
+
+
+@server.tool(annotations=READ_ONLY)
 def discover(profile: str | None = None) -> dict:
     """Every Search Console property and GA4 web stream the key can read, matched by domain,
     with ready-to-paste [[sites]] blocks for any site not in a profile yet. Reads only; the
@@ -167,6 +178,10 @@ def main() -> None:
     h.add_argument("site")
     h.add_argument("--pages", type=int, default=10)
     h.add_argument("--days", type=int, default=28)
+    v = sub.add_parser("core_web_vitals")
+    v.add_argument("site")
+    v.add_argument("--page", help="full URL to test; default is the site's home page")
+    v.add_argument("--strategy", default="mobile", choices=["mobile", "desktop"])
     i = sub.add_parser("init")
     i.add_argument("--profile", default="main", help="profile name, which is also the file name")
     d = sub.add_parser("discover")
@@ -224,6 +239,8 @@ def _run(args: argparse.Namespace) -> None:
         )
     elif args.command == "index_health":
         result = indexhealth.index_health(args.site, args.pages, args.days)
+    elif args.command == "core_web_vitals":
+        result = vitals.core_web_vitals(args.site, args.page, args.strategy)
     elif args.command == "traffic":
         result = report.traffic(
             args.site, args.start, args.end, args.days, args.compare, args.limit

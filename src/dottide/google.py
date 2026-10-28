@@ -13,9 +13,12 @@ from dottide.config import Profile
 SCOPES = [
     "https://www.googleapis.com/auth/webmasters.readonly",
     "https://www.googleapis.com/auth/analytics.readonly",
+    # PageSpeed Insights only needs an identity; quota comes from the key's Cloud project.
+    "openid",
 ]
 GSC = "https://searchconsole.googleapis.com/webmasters/v3"
 GSC_INSPECT = "https://searchconsole.googleapis.com/v1"
+PAGESPEED = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed"
 GA4_DATA = "https://analyticsdata.googleapis.com/v1beta"
 GA4_ADMIN = "https://analyticsadmin.googleapis.com/v1beta"
 
@@ -38,9 +41,9 @@ def _token(profile: Profile) -> str:
     return creds.token
 
 
-def _call(profile: Profile, method: str, url: str, **kwargs) -> dict:
+def _call(profile: Profile, method: str, url: str, timeout: int = 30, **kwargs) -> dict:
     headers = {"Authorization": f"Bearer {_token(profile)}"}
-    response = httpx.request(method, url, headers=headers, timeout=30, **kwargs)
+    response = httpx.request(method, url, headers=headers, timeout=timeout, **kwargs)
     if response.status_code >= 400:
         try:
             message = response.json()["error"]["message"]
@@ -137,3 +140,8 @@ def gsc_inspect(profile: Profile, prop: str, page: str) -> dict:
     body = {"inspectionUrl": page, "siteUrl": prop}
     data = _call(profile, "POST", f"{GSC_INSPECT}/urlInspection/index:inspect", json=body)
     return data.get("inspectionResult", {}).get("indexStatusResult", {})
+
+
+def pagespeed(profile: Profile, url: str, strategy: str) -> dict:
+    params = {"url": url, "strategy": strategy, "category": "performance"}
+    return _call(profile, "GET", PAGESPEED, params=params, timeout=120)
