@@ -1,0 +1,27 @@
+# Publishes to PyPI when a version tag (vX.Y.Z) is pushed from main. One Linux job per release.
+# Uses PyPI trusted publishing, so no API token is stored in the repo or its secrets.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  publish:
+    name: Test, build and publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: pypi
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - run: pipx install uv
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run pytest -q
+      - name: Check the tag matches the package version
+        run: test "v$(uv version --short)" = "${GITHUB_REF_NAME}"
+      - run: uv build
+      - run: uv publish --trusted-publishing always

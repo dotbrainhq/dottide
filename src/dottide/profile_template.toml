@@ -1,12 +1,12 @@
-# dotTide profile. Copy to ~/.config/dottide/<profile>.toml, one file per side.
-# The file name is the profile name. Never commit a filled-in copy.
+# dotTide profile, written by `dottide init`. The file name is the profile name.
+# Never commit a filled-in copy. Every field is explained in docs/configuration.md.
 
 [key]
 # Where the Google service account key lives. Pick one.
 keychain = "dottide-main"             # set with: dottide import-key dottide-main key.json
 # file = "~/.config/dottide/keys/main.json"
 
-# One block per site. Leave the list empty until the service account has access.
+# One block per site. `dottide discover --write` adds them for you once the key can read your sites.
 #
 # search_console: the property exactly as Search Console shows it:
 #   "sc-domain:example.com" for a domain property, "https://example.com/" for a URL prefix.

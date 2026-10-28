@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/cover-dark.png">
-  <img src=".github/assets/cover-light.png" alt="dotTide: every site's numbers, one place. Search Console, GA4 and store stats across Google accounts, for you and your AI agents. Local and read-only. Next to the text, the dotTide icon: a wave running across a green tile, with one dot under the surface.">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/dotbrainhq/dottide/main/.github/assets/cover-dark.png">
+  <img src="https://raw.githubusercontent.com/dotbrainhq/dottide/main/.github/assets/cover-light.png" alt="dotTide: every site's numbers, one place. Search Console, GA4 and store stats across Google accounts, for you and your AI agents. Local and read-only. Next to the text, the dotTide icon: a wave running across a green tile, with one dot under the surface.">
 </picture>
 
 # dotTide
@@ -35,52 +35,45 @@ The service account can only read, and you can remove it from any site in one cl
 
 ## Quick start
 
-You need macOS, [uv](https://docs.astral.sh/uv/) and Python 3.12 or newer.
+You need macOS and [uv](https://docs.astral.sh/uv/). There is nothing to clone: `uvx` downloads dotTide the first time you run it.
 
-1. Get the code.
+1. Write a starter profile, then add a plugin slug, an add-on slug or a GitHub user under `[stores]` in it:
 
 ```
-git clone https://github.com/dotbrainhq/dottide.git
-cd dottide
-uv sync
+uvx dottide init
 ```
 
 2. Check that it runs. Store numbers need no Google setup at all:
 
 ```
-mkdir -p ~/.config/dottide
-cp config.example.toml ~/.config/dottide/main.toml
+uvx dottide store_stats
 ```
 
-Add a plugin slug, an add-on slug or a GitHub user under `[stores]` in that file, then:
-
-```
-uv run dottide store_stats
-```
-
-3. Set up Google access by following [Google setup](docs/google-setup.md). It takes about ten minutes, plus a minute per site.
+3. Set up Google access by following [Google setup](https://github.com/dotbrainhq/dottide/blob/main/docs/google-setup.md). It takes about ten minutes, plus a minute per site.
 
 4. Store the key, let dotTide find your sites, and check access:
 
 ```
-uv run dottide import-key dottide-main ~/Downloads/<downloaded-key>.json
-uv run dottide discover --write
-uv run dottide sites
+uvx dottide import-key dottide-main ~/Downloads/<downloaded-key>.json
+uvx dottide discover --write
+uvx dottide sites
 ```
 
 5. Connect it to Claude Code:
 
 ```
-claude mcp add --scope user dottide -- uv run --quiet --project "$PWD" dottide
+claude mcp add --scope user dottide -- uvx dottide
 ```
+
+To update later, run `uvx dottide@latest sites` once; after that `uvx dottide` uses the new version.
 
 ## Documentation
 
-- [Google setup](docs/google-setup.md): the service account, click by click, and sharing each site.
-- [Configuration](docs/configuration.md): profiles, every field, keys and environment variables.
-- [Using dotTide](docs/usage.md): each tool and its options, MCP clients, the weekly snapshot and its format, and fixes for common errors.
-- [Asking an AI agent for your numbers](docs/examples.md): example prompts for weekly checks, content to refresh, AI referrals and store numbers, plus a saved Claude Code command.
-- [Connecting AI clients](docs/clients.md): Claude Code, Claude Desktop, Cursor, Windsurf, VS Code, Codex, Gemini CLI, Grok, and agents without MCP.
+- [Google setup](https://github.com/dotbrainhq/dottide/blob/main/docs/google-setup.md): the service account, click by click, and sharing each site.
+- [Configuration](https://github.com/dotbrainhq/dottide/blob/main/docs/configuration.md): profiles, every field, keys and environment variables.
+- [Using dotTide](https://github.com/dotbrainhq/dottide/blob/main/docs/usage.md): each tool and its options, MCP clients, the weekly snapshot and its format, and fixes for common errors.
+- [Asking an AI agent for your numbers](https://github.com/dotbrainhq/dottide/blob/main/docs/examples.md): example prompts for weekly checks, content to refresh, AI referrals and store numbers, plus a saved Claude Code command.
+- [Connecting AI clients](https://github.com/dotbrainhq/dottide/blob/main/docs/clients.md): Claude Code, Claude Desktop, Cursor, Windsurf, VS Code, Codex, Gemini CLI, Grok, and agents without MCP.
 
 ## Good to know
 
@@ -90,8 +83,8 @@ claude mcp add --scope user dottide -- uv run --quiet --project "$PWD" dottide
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports go through [SECURITY.md](SECURITY.md).
+See [CONTRIBUTING.md](https://github.com/dotbrainhq/dottide/blob/main/CONTRIBUTING.md). Security reports go through [SECURITY.md](https://github.com/dotbrainhq/dottide/blob/main/SECURITY.md).
 
 ## License
 
-The code is released under the [MIT License](LICENSE). The dotTide name and icon are not covered by the license, so please use your own name and icon if you ship a copy.
+The code is released under the [MIT License](https://github.com/dotbrainhq/dottide/blob/main/LICENSE). The dotTide name and icon are not covered by the license, so please use your own name and icon if you ship a copy.

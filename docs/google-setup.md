@@ -53,7 +53,7 @@ Do this signed in as whichever Google account owns the site. It can be a differe
 ## 6. Store the key and check access
 
 ```
-uv run dottide import-key dottide-main ~/Downloads/<downloaded-key>.json
+uvx dottide import-key dottide-main ~/Downloads/<downloaded-key>.json
 ```
 
 The command copies the key into the macOS keychain and reads it back to confirm. Then delete the downloaded file and empty the Trash.
@@ -61,9 +61,9 @@ The command copies the key into the macOS keychain and reads it back to confirm.
 Make a profile in `~/.config/dottide/` with just the `[key]` section (see [Configuration](configuration.md)), then let dotTide find your sites and add them:
 
 ```
-uv run dottide discover
-uv run dottide discover --write
-uv run dottide sites
+uvx dottide discover
+uvx dottide discover --write
+uvx dottide sites
 ```
 
 The first command shows what it found, the second adds it to the profile, and `sites` checks access for each one.
