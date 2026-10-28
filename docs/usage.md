@@ -44,6 +44,28 @@ uvx dottide search_queries example.com --start 2026-09-01 --end 2026-09-30 --lim
 
 The result carries `totals` for the whole site and `rows`. With `compare`, each number gains `previous_<field>` and `change_<field>`. A row that didn't exist in the previous period shows `null` there.
 
+### `opportunities`
+
+What to work on next for a site, worked out from Search Console.
+
+```
+uvx dottide opportunities example.com
+uvx dottide opportunities example.com --days 90 --min-impressions 20 --limit 20
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `min_impressions` | 5 | Skip queries seen fewer times than this. Raise it for big sites, lower it for small ones. |
+| `limit` | 10 | How many items in each list. |
+
+It returns four lists, each item with its own numbers:
+
+- **`striking_distance`:** queries at average position 8 to 20, most impressions first. These sit at the bottom of page one or the top of page two, where a better page can move them into view.
+- **`losing_pages`** and **`losing_queries`:** the biggest click drops against the previous period of the same length, including rows that disappeared.
+- **`low_ctr`:** page-one queries whose click-through rate is under half of the site's own median for that position band (1 to 3, 4 to 7, 8 to 10). A band needs at least three queries before it counts, so small sites may see none. Compare a low row's title and description with the query.
+
+When few queries reach `min_impressions`, the result carries a `note` saying so.
+
 ### `traffic`
 
 GA4 sessions by source and medium, with AI assistant referrals counted on their own. Only for sites that have `ga4_property`.

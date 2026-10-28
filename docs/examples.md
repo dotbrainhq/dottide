@@ -22,6 +22,10 @@ When impressions hold steady and clicks fall, the page still shows up in search 
 
 ## Finding content to refresh
 
+> Use dotTide opportunities for example.com. What should I work on first?
+
+The agent calls `opportunities`, which returns queries in striking distance, pages and queries losing clicks, and page-one queries with a low click-through rate, each with its numbers. To do the same by hand:
+
 > On example.com, find queries from the last 28 days where the average position is between 8 and 20, sorted by impressions. Which pages rank for them?
 
 Positions 8 to 20 are the bottom of page one and the top of page two, where a small improvement moves a page into view. Follow up with:

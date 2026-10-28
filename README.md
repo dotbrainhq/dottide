@@ -21,6 +21,7 @@ dotTide reads all of it with one read-only key, and answers the same way in Clau
 - **`search_queries`:** clicks, impressions, CTR and average position by query or page, for any date range, with an optional comparison to the previous period.
 - **`traffic`:** GA4 sessions by source and medium, with AI assistant referrals (ChatGPT, Perplexity, Copilot, Gemini, Claude and others) counted separately. Only for sites that have GA4.
 - **`store_stats`:** live public numbers that need no key: WordPress.org plugins, Firefox Add-ons, GitHub stars.
+- **`opportunities`:** what to work on next: queries in striking distance, pages and queries losing clicks, and page-one queries with a low click-through rate for their position.
 - **`discover`:** finds every Search Console property and GA4 property the key can read, and writes the profile entries for you.
 - **Weekly snapshot:** last full week against the week before, one JSON file per profile, for scripts and agents that read files.
 

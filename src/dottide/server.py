@@ -4,6 +4,7 @@ dottide                      run the MCP server on stdio (what MCP clients call)
 dottide sites                print any report as JSON; also search_queries, traffic, store_stats
 dottide init                 write a starter profile to ~/.config/dottide/main.toml
 dottide discover [--write]   suggest profile entries for sites the key can read
+dottide opportunities SITE   queries and pages worth working on
 dottide snapshot [--out DIR] write the weekly snapshot, one file per profile
 dottide import-key NAME FILE copy a service account key into the macOS keychain
 """
@@ -20,6 +21,7 @@ from mcp.types import ToolAnnotations
 
 from dottide import discover as finder
 from dottide import keys, report, snapshot
+from dottide import opportunities as chances
 from dottide.config import init_profile
 
 READ_ONLY = ToolAnnotations(read_only_hint=True, open_world_hint=True)
@@ -79,6 +81,22 @@ def store_stats(profile: str | None = None) -> dict:
 
 
 @server.tool(annotations=READ_ONLY)
+def opportunities(
+    site: str,
+    start: str | None = None,
+    end: str | None = None,
+    days: int = 28,
+    min_impressions: int = 5,
+    limit: int = 10,
+) -> dict:
+    """What to work on next for a site, from Search Console: queries in striking distance
+    (position 8 to 20, by impressions), pages and queries that lost the most clicks against the
+    previous period, and page-one queries whose CTR is under half the site's own median for
+    that position. Every item carries its numbers. Same date rules as search_queries."""
+    return chances.opportunities(site, start, end, days, min_impressions, limit)
+
+
+@server.tool(annotations=READ_ONLY)
 def discover(profile: str | None = None) -> dict:
     """Every Search Console property and GA4 web stream the key can read, matched by domain,
     with ready-to-paste [[sites]] blocks for any site not in a profile yet. Reads only; the
@@ -108,6 +126,13 @@ def main() -> None:
         p.add_argument("--limit", type=int, default=25)
     s = sub.add_parser("store_stats")
     s.add_argument("--profile")
+    o = sub.add_parser("opportunities")
+    o.add_argument("site")
+    o.add_argument("--start")
+    o.add_argument("--end")
+    o.add_argument("--days", type=int, default=28)
+    o.add_argument("--min-impressions", type=int, default=5)
+    o.add_argument("--limit", type=int, default=10)
     i = sub.add_parser("init")
     i.add_argument("--profile", default="main", help="profile name, which is also the file name")
     d = sub.add_parser("discover")
@@ -158,6 +183,10 @@ def _run(args: argparse.Namespace) -> None:
     elif args.command == "search_queries":
         result = report.search_queries(
             args.site, args.by, args.start, args.end, args.days, args.compare, args.limit
+        )
+    elif args.command == "opportunities":
+        result = chances.opportunities(
+            args.site, args.start, args.end, args.days, args.min_impressions, args.limit
         )
     elif args.command == "traffic":
         result = report.traffic(

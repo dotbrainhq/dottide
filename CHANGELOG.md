@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `opportunities` lists what to work on next: queries in striking distance, pages and queries losing clicks, and page-one queries with a low click-through rate for their position.
+
 ## 0.2.0
 
 - Published on PyPI: `uvx dottide` runs it with nothing to clone.
