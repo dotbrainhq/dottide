@@ -118,19 +118,7 @@ uvx dottide bing_queries example.com
 uvx dottide bing_queries example.com --days 90 --limit 50
 ```
 
-Bing updates these numbers about once a week, so short ranges can come back empty.
-
-To set it up once:
-
-1. Sign in to [Bing Webmaster Tools](https://www.bing.com/webmasters) and import your sites from Google Search Console. It takes one click and verifies them for you.
-2. Open Settings, then API access, and generate an API key. Don't paste it into a chat or a file.
-3. Store it from a hidden prompt, then add a `[bing]` section to your profile (see [Configuration](configuration.md)):
-
-```
-uvx dottide import-secret dottide-bing
-```
-
-`sites` then reports Bing access for each site too.
+Bing updates these numbers about once a week, so short ranges can come back empty, and a newly added site shows nothing for a few days. Setting it up takes one API key: see [Bing setup](bing-setup.md). Once it's set up, `sites` reports Bing access for each site too.
 
 ### `traffic`
 
@@ -179,7 +167,7 @@ MCP clients that support prompts show these as commands. In Claude Code they app
 
 | Prompt | Arguments | What the agent does |
 |---|---|---|
-| Weekly review | `site`, optional | Compares last week with the week before for every site (or one), lists the biggest movers, AI referrals and store changes, and ends with the most useful thing to do this week. |
+| Weekly review | `site`, optional | Compares last week with the week before for every site (or one), lists the biggest movers, AI referrals, Bing numbers where set up, and store changes, and ends with the most useful thing to do this week. |
 | What to work on | `site` | Calls `opportunities` and turns the three items with the most to gain into concrete changes. |
 | Index check | `site` | Calls `index_health` and explains each problem in a plain sentence. |
 

@@ -79,7 +79,7 @@ Optional. Add it to read Bing Webmaster Tools numbers for the profile's sites:
 keychain = "dottide-bing"
 ```
 
-The value is the name of a Bing API key stored with `dottide import-secret dottide-bing`. See [Using dotTide](usage.md#bing_queries) for getting the key.
+The value is the name of a Bing API key stored with `dottide import-secret dottide-bing`. [Bing setup](bing-setup.md) covers getting the key, click by click.
 
 ### `[stores]`
 

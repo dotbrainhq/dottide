@@ -3,6 +3,8 @@
   <img src="https://raw.githubusercontent.com/dotbrainhq/dottide/main/.github/assets/cover-light.png" alt="dotTide: every site's numbers, one place. Search Console, GA4 and store stats across Google accounts, for you and your AI agents. Local and read-only. Next to the text, the dotTide icon: a wave running across a green tile, with one dot under the surface.">
 </picture>
 
+<!-- mcp-name: io.github.dotbrainhq/dottide -->
+
 # dotTide
 
 dotTide is a read-only MCP server and command-line tool that gives Claude, Cursor, Codex and other AI agents the numbers for every site you run. It reads Google Search Console and Google Analytics 4 (GA4) across multiple Google accounts, plus WordPress.org, Firefox Add-ons and GitHub stats, and writes a weekly snapshot for scripts and agents.
@@ -17,7 +19,7 @@ dotTide reads all of it with one read-only key, and answers the same way in Clau
 
 ## What it does
 
-- **`sites`:** every configured site, which key covers it, and whether Search Console and GA4 access works when you ask.
+- **`sites`:** every configured site, which key covers it, and whether Search Console, GA4 and Bing access works when you ask.
 - **`search_queries`:** clicks, impressions, CTR and average position by query or page, for any date range, with an optional comparison to the previous period.
 - **`traffic`:** GA4 sessions by source and medium, with AI assistant referrals (ChatGPT, Perplexity, Copilot, Gemini, Claude and others) counted separately. Only for sites that have GA4.
 - **`store_stats`:** live public numbers that need no key: WordPress.org plugins, Firefox Add-ons, GitHub stars.
@@ -36,7 +38,7 @@ No site moves to a new Google account. You create one Google service account, an
 - **Search Console:** as a Restricted user.
 - **GA4:** as a Viewer.
 
-The service account can only read, and you can remove it from any site in one click. Its key lives in your system's secret store: the macOS keychain, Windows Credential Manager or the Linux Secret Service.
+The service account can only read, and you can remove it from any site in one click. Bing is optional and uses one API key from Bing Webmaster Tools that covers all your sites there. Its key lives in your system's secret store: the macOS keychain, Windows Credential Manager or the Linux Secret Service.
 
 ## Quick start
 
@@ -64,7 +66,9 @@ uvx dottide discover --write
 uvx dottide sites
 ```
 
-5. Connect it to Claude Code:
+5. Optional: add Bing numbers by following [Bing setup](https://github.com/dotbrainhq/dottide/blob/main/docs/bing-setup.md). It takes about five minutes.
+
+6. Connect it to Claude Code:
 
 ```
 claude mcp add --scope user dottide -- uvx dottide
@@ -75,6 +79,7 @@ To update later, run `uvx dottide@latest sites` once; after that `uvx dottide` u
 ## Documentation
 
 - [Google setup](https://github.com/dotbrainhq/dottide/blob/main/docs/google-setup.md): the service account, click by click, and sharing each site.
+- [Bing setup](https://github.com/dotbrainhq/dottide/blob/main/docs/bing-setup.md): optional Bing Webmaster Tools numbers with one API key.
 - [Configuration](https://github.com/dotbrainhq/dottide/blob/main/docs/configuration.md): profiles, every field, keys and environment variables.
 - [Using dotTide](https://github.com/dotbrainhq/dottide/blob/main/docs/usage.md): each tool and its options, MCP clients, the weekly snapshot and its format, and fixes for common errors.
 - [Asking an AI agent for your numbers](https://github.com/dotbrainhq/dottide/blob/main/docs/examples.md): example prompts for weekly checks, content to refresh, AI referrals and store numbers, plus a saved Claude Code command.

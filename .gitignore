@@ -12,3 +12,5 @@ dist/
 !pyproject.toml
 !src/dottide/profile_template.toml
 !tests/fixtures/*.json
+!server.json
+!glama.json

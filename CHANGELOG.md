@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+- Bing setup has its own guide, linked from the README, and the Weekly review prompt includes Bing numbers where Bing is set up.
+- Listing files for the official MCP registry and Glama.
+
 ## 0.3.0
 
 - `opportunities` lists what to work on next: queries in striking distance, pages and queries losing clicks, and page-one queries with a low click-through rate for their position.

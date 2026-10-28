@@ -21,13 +21,15 @@ uv run dottide sites
 
 ## Releases
 
-1. Close the milestone's issues, then bump the version in `pyproject.toml` and `CHANGELOG.md` in a pull request.
+1. Close the milestone's issues, then bump the version in `pyproject.toml`, `server.json` (both `version` fields) and `CHANGELOG.md` in a pull request.
 2. After it merges, tag `main` and push the tag. The Release job in GitHub Actions tests, builds and publishes to PyPI through trusted publishing, so no token is stored anywhere.
 
 ```
 git switch main && git pull && git tag vX.Y.Z && git push origin vX.Y.Z
 gh release create vX.Y.Z --generate-notes
 ```
+
+3. Once the new version is on PyPI, publish it to the MCP registry from the repo folder with `mcp-publisher publish`, signed in with `mcp-publisher login github` as dotbrainhq.
 
 ## Checks
 

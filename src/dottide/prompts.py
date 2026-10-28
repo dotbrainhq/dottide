@@ -15,8 +15,10 @@ def weekly_review(site: str = "") -> str:
    List the three queries or pages with the biggest change in clicks, with both weeks' numbers.
 3. For each site with GA4, call `traffic` with days=7 and compare=true, and report sessions
    and AI assistant referrals for both weeks.
-4. Call `store_stats` and report only what changed: downloads, users, ratings, open support threads.
-5. End with the single most useful thing to do this week, and why.
+4. For each site where `sites` shows Bing as ok, call `bing_queries` with days=28 and report
+   Bing clicks and the top three Bing queries. Skip this step for sites without Bing.
+5. Call `store_stats` and report only what changed: downloads, users, ratings, open support threads.
+6. End with the single most useful thing to do this week, and why.
 
 Keep it to five lines per site. {QUOTE}"""
 

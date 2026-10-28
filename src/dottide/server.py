@@ -145,8 +145,8 @@ def discover(profile: str | None = None) -> dict:
 
 @server.prompt(title="Weekly review")
 def weekly_review(site: str = "") -> str:
-    """Week-over-week review of every site, or one site: clicks, top movers, AI referrals and
-    store changes, ending with the most useful thing to do this week."""
+    """Week-over-week review of every site, or one site: clicks, top movers, AI referrals, Bing
+    where it's set up, and store changes, ending with the most useful thing to do this week."""
     return prompts.weekly_review(site)
 
 

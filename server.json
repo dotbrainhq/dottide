@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.dotbrainhq/dottide",
+  "description": "Read-only Search Console, GA4, Bing and store numbers for every site, across Google accounts.",
+  "repository": {
+    "url": "https://github.com/dotbrainhq/dottide",
+    "source": "github"
+  },
+  "version": "0.3.1",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "dottide",
+      "version": "0.3.1",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
