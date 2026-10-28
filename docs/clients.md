@@ -39,6 +39,8 @@ Restart Claude Desktop afterwards.
 
 Add the same `mcpServers` block to `~/.cursor/mcp.json` for every project, or to `.cursor/mcp.json` inside one project.
 
+dotTide is also listed on [cursor.directory](https://cursor.directory/plugins/dottide), with the same setup.
+
 ## Windsurf
 
 Add the same `mcpServers` block to `~/.codeium/windsurf/mcp_config.json`, then refresh the MCP list in Windsurf's settings.
