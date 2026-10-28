@@ -109,6 +109,29 @@ It returns:
 
 One run takes 10 to 30 seconds. It needs the PageSpeed Insights API turned on in the key's Google Cloud project (see [Google setup](google-setup.md)).
 
+### `bing_queries`
+
+Bing Webmaster Tools clicks, impressions and average position by query, plus site totals.
+
+```
+uvx dottide bing_queries example.com
+uvx dottide bing_queries example.com --days 90 --limit 50
+```
+
+Bing updates these numbers about once a week, so short ranges can come back empty.
+
+To set it up once:
+
+1. Sign in to [Bing Webmaster Tools](https://www.bing.com/webmasters) and import your sites from Google Search Console. It takes one click and verifies them for you.
+2. Open Settings, then API access, and generate an API key. Don't paste it into a chat or a file.
+3. Store it from a hidden prompt, then add a `[bing]` section to your profile (see [Configuration](configuration.md)):
+
+```
+uvx dottide import-secret dottide-bing
+```
+
+`sites` then reports Bing access for each site too.
+
 ### `traffic`
 
 GA4 sessions by source and medium, with AI assistant referrals counted on their own. Only for sites that have `ga4_property`.
@@ -231,5 +254,6 @@ On macOS, a LaunchAgent can run the snapshot every Monday morning. Save this as 
 | `Google API 403 ... has not been used in project` | Turn on that API in the Google Cloud project that owns the key. See [Google setup](google-setup.md). |
 | `Google API 403 ... sufficient permissions` on GA4 | Add the service account as a Viewer on the property, and check the numeric property ID. |
 | `PageSpeed Insights API has not been used in project` | Turn on the PageSpeed Insights API in the key's Google Cloud project. |
+| `Bing API 400` or `401` | The Bing API key is wrong or was revoked. Generate a new one and run `import-secret` again. |
 | `unknown site` | The name isn't in any profile. The error lists the names that are. |
 | `GitHub rate limit, resets ...` | Wait until the time shown, or set `DOTTIDE_GITHUB_TOKEN`. |

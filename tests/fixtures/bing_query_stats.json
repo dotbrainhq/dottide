@@ -1,0 +1,6 @@
+{"d": [
+  {"Query": "alpha", "Clicks": 3, "Impressions": 40, "AvgImpressionPosition": 4, "AvgClickPosition": 3, "Date": "/Date(1760918400000-0700)/"},
+  {"Query": "alpha", "Clicks": 2, "Impressions": 60, "AvgImpressionPosition": 6, "AvgClickPosition": 5, "Date": "/Date(1761523200000-0700)/"},
+  {"Query": "beta", "Clicks": 0, "Impressions": 25, "AvgImpressionPosition": 12, "AvgClickPosition": 0, "Date": "/Date(1761523200000-0700)/"},
+  {"Query": "old", "Clicks": 9, "Impressions": 90, "AvgImpressionPosition": 2, "AvgClickPosition": 2, "Date": "/Date(1704067200000-0800)/"}
+]}

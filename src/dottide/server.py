@@ -7,13 +7,16 @@ dottide discover [--write]   suggest profile entries for sites the key can read
 dottide opportunities SITE   queries and pages worth working on
 dottide index_health SITE    sitemap state and index status of the top pages
 dottide core_web_vitals SITE Core Web Vitals from PageSpeed Insights
+dottide bing_queries SITE    Bing Webmaster Tools clicks and impressions by query
 dottide snapshot [--out DIR] write the weekly snapshot, one file per profile
 dottide import-key NAME FILE copy a service account key into the system secret store
+dottide import-secret NAME   store an API key (like Bing's) from a hidden prompt
 """
 
 from __future__ import annotations
 
 import argparse
+import getpass
 import json
 import logging
 import sys
@@ -21,8 +24,8 @@ import sys
 from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 
+from dottide import bing, indexhealth, keys, prompts, report, snapshot, vitals
 from dottide import discover as finder
-from dottide import indexhealth, keys, prompts, report, snapshot, vitals
 from dottide import opportunities as chances
 from dottide.config import init_profile
 
@@ -119,6 +122,20 @@ def core_web_vitals(site: str, page: str | None = None, strategy: str = "mobile"
 
 
 @server.tool(annotations=READ_ONLY)
+def bing_queries(
+    site: str,
+    start: str | None = None,
+    end: str | None = None,
+    days: int = 28,
+    limit: int = 25,
+) -> dict:
+    """Bing Webmaster Tools clicks, impressions and average position by query, plus site
+    totals, for a range. Bing feeds Copilot. Needs a [bing] key in the site's profile. Bing
+    updates these numbers about once a week."""
+    return bing.bing_queries(site, start, end, days, limit)
+
+
+@server.tool(annotations=READ_ONLY)
 def discover(profile: str | None = None) -> dict:
     """Every Search Console property and GA4 web stream the key can read, matched by domain,
     with ready-to-paste [[sites]] blocks for any site not in a profile yet. Reads only; the
@@ -182,6 +199,12 @@ def main() -> None:
     v.add_argument("site")
     v.add_argument("--page", help="full URL to test; default is the site's home page")
     v.add_argument("--strategy", default="mobile", choices=["mobile", "desktop"])
+    b = sub.add_parser("bing_queries")
+    b.add_argument("site")
+    b.add_argument("--start")
+    b.add_argument("--end")
+    b.add_argument("--days", type=int, default=28)
+    b.add_argument("--limit", type=int, default=25)
     i = sub.add_parser("init")
     i.add_argument("--profile", default="main", help="profile name, which is also the file name")
     d = sub.add_parser("discover")
@@ -189,6 +212,8 @@ def main() -> None:
     d.add_argument("--write", action="store_true", help="append the new sites to the profile")
     snap = sub.add_parser("snapshot")
     snap.add_argument("--out", help="folder for <profile>-<year>-W<week>.json; stdout if absent")
+    sec = sub.add_parser("import-secret")
+    sec.add_argument("name", help="name for the stored secret, for example dottide-bing")
     k = sub.add_parser("import-key")
     k.add_argument("name", help="name for the stored key, for example dottide-main")
     k.add_argument("file", help="path to the downloaded service account JSON key")
@@ -203,6 +228,10 @@ def main() -> None:
 def _run(args: argparse.Namespace) -> None:
     if args.command == "import-key":
         print(f"stored {keys.store(args.name, args.file)} in the secret store as {args.name}")
+        return
+    if args.command == "import-secret":
+        keys.store_secret(args.name, getpass.getpass(f"Paste the secret for {args.name}: "))
+        print(f"stored {args.name} in the secret store")
         return
     if args.command == "init":
         path = init_profile(args.profile)
@@ -241,6 +270,8 @@ def _run(args: argparse.Namespace) -> None:
         result = indexhealth.index_health(args.site, args.pages, args.days)
     elif args.command == "core_web_vitals":
         result = vitals.core_web_vitals(args.site, args.page, args.strategy)
+    elif args.command == "bing_queries":
+        result = bing.bing_queries(args.site, args.start, args.end, args.days, args.limit)
     elif args.command == "traffic":
         result = report.traffic(
             args.site, args.start, args.end, args.days, args.compare, args.limit

@@ -65,9 +65,21 @@ One block per site.
 |---|---|---|
 | `name` | Yes | The name you use in tool calls, usually the domain. Must be unique across all profiles. |
 | `search_console` | No | The Search Console property, written exactly as Search Console shows it. A domain property looks like `sc-domain:example.com`. A URL-prefix property is the full URL with the trailing slash, like `https://example.com/`. |
+| `bing` | No | The site's URL in Bing Webmaster Tools, like `https://example.com/`. Only needed when it differs from the Search Console property. |
 | `ga4_property` | No | The numeric GA4 property ID from Admin, then Property details. It's a number like `123456789`, not the `G-` measurement ID. Leave it out for sites without GA4. |
 
 You rarely need to type these by hand: `uvx dottide discover --write` finds every site the key can read and adds the blocks for you. To check a property name yourself, `uvx dottide sites` lists every property the key can see.
+
+### `[bing]`
+
+Optional. Add it to read Bing Webmaster Tools numbers for the profile's sites:
+
+```
+[bing]
+keychain = "dottide-bing"
+```
+
+The value is the name of a Bing API key stored with `dottide import-secret dottide-bing`. See [Using dotTide](usage.md#bing_queries) for getting the key.
 
 ### `[stores]`
 

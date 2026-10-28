@@ -58,20 +58,33 @@ def _keyring_store(service: str, blob: str) -> None:
     keyring.set_password(service, "chunks", str(len(parts)))
 
 
-def read(service: str) -> dict:
+def _get_blob(service: str) -> str | None:
     if sys.platform != "darwin":
-        blob = _keyring_read(service)
-        if blob is None:
-            raise _missing(service)
-        return _validate(json.loads(base64.b64decode(blob)), f"secret store item {service!r}")
+        return _keyring_read(service)
     out = subprocess.run(
         [SECURITY, "find-generic-password", "-s", service, "-a", ACCOUNT, "-w"],
         capture_output=True,
         text=True,
     )
-    if out.returncode != 0:
+    return out.stdout.strip() if out.returncode == 0 else None
+
+
+def _put_blob(service: str, blob: str) -> None:
+    if sys.platform != "darwin":
+        _keyring_store(service, blob)
+        return
+    label = f"'dotTide {service}'"
+    command = f"add-generic-password -U -s {service} -a {ACCOUNT} -l {label} -w {blob}\n"
+    out = subprocess.run([SECURITY, "-i"], input=command, capture_output=True, text=True)
+    if out.returncode != 0 or out.stderr.strip():
+        raise RuntimeError(f"keychain write failed: {out.stderr.strip() or out.returncode}")
+
+
+def read(service: str) -> dict:
+    blob = _get_blob(service)
+    if blob is None:
         raise _missing(service)
-    return _validate(json.loads(base64.b64decode(out.stdout.strip())), f"keychain item {service!r}")
+    return _validate(json.loads(base64.b64decode(blob)), f"stored key {service!r}")
 
 
 def read_file(path: str) -> dict:
@@ -85,19 +98,28 @@ def read_file(path: str) -> dict:
 
 
 def store(service: str, path: str) -> str:
-    """Copy a key file into the keychain. Returns the service account email."""
+    """Copy a key file into the secret store. Returns the service account email."""
     info = read_file(path)
-    blob = _encode(info)
-    if sys.platform != "darwin":
-        _keyring_store(service, blob)
-        if read(service)["client_email"] != info["client_email"]:
-            raise RuntimeError("secret store read-back did not match the key file")
-        return info["client_email"]
-    label = f"'dotTide {service}'"
-    command = f"add-generic-password -U -s {service} -a {ACCOUNT} -l {label} -w {blob}\n"
-    out = subprocess.run([SECURITY, "-i"], input=command, capture_output=True, text=True)
-    if out.returncode != 0 or out.stderr.strip():
-        raise RuntimeError(f"keychain write failed: {out.stderr.strip() or out.returncode}")
+    _put_blob(service, _encode(info))
     if read(service)["client_email"] != info["client_email"]:
-        raise RuntimeError("keychain read-back did not match the key file")
+        raise RuntimeError("secret store read-back did not match the key file")
     return info["client_email"]
+
+
+def read_secret(service: str) -> str:
+    """A plain secret, like an API key, stored with store_secret."""
+    blob = _get_blob(service)
+    if blob is None:
+        raise PermissionError(
+            f"no stored secret named {service!r}; run: dottide import-secret {service}"
+        )
+    return base64.b64decode(blob).decode()
+
+
+def store_secret(service: str, value: str) -> None:
+    value = value.strip()
+    if not value:
+        raise ValueError("the secret is empty")
+    _put_blob(service, base64.b64encode(value.encode()).decode())
+    if read_secret(service) != value:
+        raise RuntimeError("secret store read-back did not match")
