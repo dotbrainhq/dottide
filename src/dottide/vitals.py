@@ -49,12 +49,18 @@ def field(experience: dict | None) -> dict | None:
     return out
 
 
+def _display(audit: dict) -> str | None:
+    # Lighthouse puts a no-break space between number and unit ("3.5\u00a0s").
+    value = audit.get("displayValue")
+    return value.replace("\u00a0", " ") if value else None
+
+
 def lab(result: dict) -> dict:
     audits = result.get("audits", {})
     score = result.get("categories", {}).get("performance", {}).get("score")
     return {
         "performance_score": None if score is None else round(score * 100),
-        **{name: audits.get(key, {}).get("displayValue") for key, name in LAB_AUDITS.items()},
+        **{name: _display(audits.get(key, {})) for key, name in LAB_AUDITS.items()},
     }
 
 

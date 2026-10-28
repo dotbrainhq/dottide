@@ -92,11 +92,18 @@ def bing_queries(
     profile, s = find_site(load_profiles(), site)
     key, url = api_key(profile), site_url(s)
     first, last = period(start, end, days)
-    return {
+    traffic_rows = _call(key, "GetRankAndTrafficStats", siteUrl=url)
+    result = {
         "site": site,
         "bing_site": url,
         "start": str(first),
         "end": str(last),
-        "totals": totals(_call(key, "GetRankAndTrafficStats", siteUrl=url), first, last),
+        "totals": totals(traffic_rows, first, last),
         "rows": summarize(_call(key, "GetQueryStats", siteUrl=url), first, last, limit),
     }
+    if not traffic_rows:
+        result["note"] = (
+            "Bing has no data for this site yet. Sites added to Bing Webmaster Tools "
+            "usually start showing numbers after a few days."
+        )
+    return result

@@ -30,7 +30,7 @@ def test_field_is_none_without_data():
 def test_lab_and_home_page():
     result = {
         "categories": {"performance": {"score": 0.87}},
-        "audits": {"largest-contentful-paint": {"displayValue": "2.4 s"}},
+        "audits": {"largest-contentful-paint": {"displayValue": "2.4\u00a0s"}},
     }
     got = vitals.lab(result)
     assert got["performance_score"] == 87
