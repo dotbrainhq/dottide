@@ -21,6 +21,21 @@ def host(address: str) -> str:
     return address.strip("/").lower().removeprefix("www.")
 
 
+# Second-level labels under a country code, like the "co" in example.co.uk.
+SECOND_LEVEL = {"co", "com", "org", "net", "ac", "gov", "edu"}
+
+
+def brand_guess(domain: str) -> list[str]:
+    """The site's own name as brand_terms would want it, from the label before the suffix."""
+    labels = host(domain).split(".")[:-1]
+    if len(labels) > 1 and labels[-1] in SECOND_LEVEL:
+        labels.pop()
+    if not labels:
+        return []
+    name = labels[-1]
+    return [name, name.replace("-", " ")] if "-" in name else [name]
+
+
 def plan(gsc_properties: list[str], streams: list[dict], configured: list[dict]) -> list[dict]:
     """Suggested sites, one per domain, skipping anything a profile already covers.
 
@@ -56,6 +71,11 @@ def to_toml(sites: list[dict]) -> str:
         if site.get("ga4_property"):
             note = f"   # {site['measurement_id']}" if site.get("measurement_id") else ""
             lines.append(f'ga4_property = "{site["ga4_property"]}"{note}')
+        if brand := brand_guess(site["name"]):
+            terms = ", ".join(f'"{t}"' for t in brand)
+            lines.append(
+                f"# brand_terms = [{terms}]   # suggested from the domain; check it, then uncomment"
+            )
         blocks.append("\n".join(lines))
     return "\n\n".join(blocks)
 

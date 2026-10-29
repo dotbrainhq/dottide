@@ -208,6 +208,8 @@ uvx dottide discover --profile business --write
 
 Without `--write` it prints the blocks so you can check them. With `--write` it adds them to the profile file, above `[stores]`. When you have more than one profile, name the one to write to with `--profile`. When a domain has both a domain property and a URL-prefix property, discover picks the domain property, because it covers every subdomain.
 
+Each block also carries a `brand_terms` suggestion taken from the domain name, like `# brand_terms = ["example"]` for example.com, or both `"my-site"` and `"my site"` for my-site.com. It's written commented out, so nothing changes until you check the words and remove the `#`. See `brand_terms` in the [configuration guide](configuration.md).
+
 Finding GA4 properties needs the Google Analytics Admin API turned on in your Google Cloud project. Without it, discover still finds every Search Console property and prints a note with the link to turn the API on.
 
 In MCP clients, `discover` only reads: it returns what it found and the blocks to add, and you add them with the command above.
