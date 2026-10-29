@@ -28,7 +28,8 @@ def what_to_work_on(site: str) -> str:
 
 1. Call `opportunities` for {site}.
 2. Pick the three items with the most to gain: striking-distance queries with the most
-   impressions, the biggest click drops, or page-one queries with a low click-through rate.
+   impressions, the biggest click drops, pages that slipped furthest in position, or page-one
+   queries with a low click-through rate.
 3. Call `competing_pages` for {site}. If two or more pages split impressions for a query,
    treat the biggest overlap as a candidate too: say which page should own the query and what
    to do with the other, like merging it, linking to the owner, or aiming it at another query.

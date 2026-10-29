@@ -92,10 +92,11 @@ uvx dottide opportunities example.com --days 90 --min-impressions 20 --limit 20
 | `min_impressions` | 5 | Skip queries seen fewer times than this. Raise it for big sites, lower it for small ones. |
 | `limit` | 10 | How many items in each list. |
 
-It returns four lists, each item with its own numbers:
+It returns six lists, each item with its own numbers:
 
 - **`striking_distance`:** queries at average position 8 to 20, most impressions first. These sit at the bottom of page one or the top of page two, where a better page can move them into view.
 - **`losing_pages`** and **`losing_queries`:** the biggest click drops against the previous period of the same length, including rows that disappeared.
+- **`slipping_pages`** and **`slipping_queries`:** the biggest drops in average position against the previous period, for rows with at least `min_impressions` in both periods and a drop of one position or more. A page that slides from 14.7 to 22.8 loses only a couple of clicks, so it sits low in `losing_pages`; here it shows by how far it fell. Raise `min_impressions` to keep low-traffic rows out.
 - **`low_ctr`:** page-one queries whose click-through rate is under half of the site's own median for that position band (1 to 3, 4 to 7, 8 to 10). A band needs at least three queries before it counts, so small sites may see none. Compare a low row's title and description with the query. When the site has `brand_terms` in its profile, queries containing them are left out of the medians and the list, and the result shows `brand_terms` and `brand_queries_left_out`.
 
 When few queries reach `min_impressions`, the result carries a `note` saying so. When `low_ctr` is empty because no band has three queries, the result adds `low_ctr_note` and `low_ctr_band_counts` with each band's count, so an empty list doesn't read as every query doing fine.
