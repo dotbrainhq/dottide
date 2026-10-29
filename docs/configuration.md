@@ -35,6 +35,7 @@ keychain = "dottide-main"
 name = "example.com"
 search_console = "sc-domain:example.com"
 ga4_property = "123456789"
+brand_terms = ["example"]
 
 [[sites]]
 name = "blog.example.org"
@@ -67,6 +68,7 @@ One block per site.
 | `search_console` | No | The Search Console property, written exactly as Search Console shows it. A domain property looks like `sc-domain:example.com`. A URL-prefix property is the full URL with the trailing slash, like `https://example.com/`. |
 | `bing` | No | The site's URL in Bing Webmaster Tools, like `https://example.com/`. Only needed when it differs from the Search Console property. |
 | `ga4_property` | No | The numeric GA4 property ID from Admin, then Property details. It's a number like `123456789`, not the `G-` measurement ID. Leave it out for sites without GA4. |
+| `brand_terms` | No | Words that mark a search for the site's own name, like `["example", "example app"]`. Any query that contains one, in any case, is left out of the `low_ctr` check in `opportunities`, since searches for your own name get far more clicks at the top and would make other queries look weak. |
 
 You rarely need to type these by hand: `uvx dottide discover --write` finds every site the key can read and adds the blocks for you. To check a property name yourself, `uvx dottide sites` lists every property the key can see.
 

@@ -66,6 +66,7 @@ def test_profile_file(tmp_path):
     path.write_text(
         '[key]\nkeychain = "dottide-side"\n'
         '[[sites]]\nname = "a.test"\nsearch_console = "sc-domain:a.test"\nga4_property = 42\n'
+        'brand_terms = ["Acme", "acme inc"]\n'
         '[stores]\nfirefox = ["x"]\n'
     )
     profile = load_profile(path)
@@ -73,6 +74,7 @@ def test_profile_file(tmp_path):
     assert profile.key_source == "keychain:dottide-side"
     _, site = find_site([profile], "a.test")
     assert site.ga4_property == "42"
+    assert site.brand_terms == ("acme", "acme inc")
     with pytest.raises(ValueError):
         find_site([profile], "b.test")
 
