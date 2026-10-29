@@ -12,11 +12,14 @@ keychain = "dottide-main"             # set with: dottide import-key dottide-mai
 #   "sc-domain:example.com" for a domain property, "https://example.com/" for a URL prefix.
 # ga4_property: the numeric property ID (Admin > Property details), not the G- measurement ID.
 #   Leave it out for sites without GA4.
+# brand_terms: words in searches for the site's own name. The low click-through check leaves
+#   those queries out, since they click far more at the top. Optional.
 #
 # [[sites]]
 # name = "example.com"
 # search_console = "sc-domain:example.com"
 # ga4_property = "123456789"
+# brand_terms = ["example"]
 
 [stores]
 # Public numbers, no key needed.

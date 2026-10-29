@@ -58,8 +58,23 @@ def _band(position: float) -> tuple[int, int] | None:
     return None
 
 
-def low_ctr(rows: dict[str, dict], min_impressions: int, limit: int) -> list[dict]:
-    """Queries on page one whose click-through is under half the site's median for that band."""
+def _is_brand(query: str, terms: tuple[str, ...]) -> bool:
+    q = query.lower()
+    return any(t.lower() in q for t in terms)
+
+
+def branded(rows: dict[str, dict], terms: tuple[str, ...]) -> int:
+    return sum(_is_brand(q, terms) for q in rows)
+
+
+def low_ctr(
+    rows: dict[str, dict], min_impressions: int, limit: int, brand_terms: tuple[str, ...] = ()
+) -> list[dict]:
+    """Queries on page one whose click-through is under half the site's median for that band.
+
+    Brand queries click far more at the top, so they would lift the medians; they are left out.
+    """
+    rows = {q: r for q, r in rows.items() if not _is_brand(q, brand_terms)}
     by_band: dict[tuple[int, int], list[float]] = {}
     for r in rows.values():
         band = _band(r["position"])
@@ -118,8 +133,11 @@ def opportunities(
         "striking_distance": striking_distance(queries, min_impressions, limit),
         "losing_pages": losing(pages, old_pages, "page", limit),
         "losing_queries": losing(queries, old_queries, "query", limit),
-        "low_ctr": low_ctr(queries, min_impressions, limit),
+        "low_ctr": low_ctr(queries, min_impressions, limit, s.brand_terms),
     }
+    if s.brand_terms:
+        result["brand_terms"] = list(s.brand_terms)
+        result["brand_queries_left_out"] = branded(queries, s.brand_terms)
     if sum(r["impressions"] >= min_impressions for r in queries.values()) < 2 * MIN_BAND_ROWS:
         result["note"] = (
             f"Few queries reach {min_impressions} impressions in this range, so the lists are "

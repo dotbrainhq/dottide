@@ -37,3 +37,19 @@ def test_low_ctr_compares_with_the_sites_own_band_median():
 def test_low_ctr_needs_enough_rows_in_a_band():
     rows = {"a": row(10, 100, 5.0), "b": row(0, 100, 5.0)}
     assert op.low_ctr(rows, min_impressions=5, limit=10) == []
+
+
+def test_low_ctr_leaves_brand_queries_out_of_medians_and_list():
+    rows = {
+        "acme": row(60, 100, 1.2),
+        "acme login": row(70, 100, 1.4),
+        "Acme pricing": row(80, 100, 2.0),
+        "good1": row(10, 100, 2.0),
+        "good2": row(12, 100, 2.4),
+        "good3": row(9, 100, 1.6),
+        "fair": row(11, 200, 2.0),
+    }
+    # Brand rows lift the 1-3 median from 9.5 to 12, so "fair" at 5.5% looks low.
+    assert [r["query"] for r in op.low_ctr(rows, 5, 10)] == ["fair"]
+    assert op.low_ctr(rows, 5, 10, brand_terms=("acme",)) == []
+    assert op.branded(rows, ("ACME",)) == 3

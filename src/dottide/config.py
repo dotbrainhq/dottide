@@ -24,6 +24,7 @@ class Site:
     search_console: str | None = None
     ga4_property: str | None = None
     bing: str | None = None
+    brand_terms: tuple[str, ...] = ()
 
 
 @dataclass
@@ -80,6 +81,7 @@ def load_profile(path: Path) -> Profile:
                 search_console=entry.get("search_console"),
                 ga4_property=str(ga4) if ga4 else None,
                 bing=entry.get("bing"),
+                brand_terms=tuple(t.lower() for t in entry.get("brand_terms", [])),
             )
         )
     return profile
