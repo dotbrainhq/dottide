@@ -7,6 +7,7 @@ Closes #
 ## How I tested it
 
 - [ ] CI passed
+- [ ] README and docs cover anything new (tool, command, setting)
 - [ ] Tested by hand: 
 
 ## Screenshots
