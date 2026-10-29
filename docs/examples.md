@@ -62,7 +62,7 @@ The agent reads the `problems` list: sitemap errors, sitemaps Google stopped rea
 
 > How many visits did AI assistants send to example.com this month compared with last month? Break it down by assistant.
 
-The agent calls `traffic` with `compare` and reads `ai_referrals`. This only works for sites with GA4. The count is a floor: some assistant visits arrive without a referrer and show up as `(direct)`.
+The agent calls `traffic` with `compare` and reads `ai_referrals`. Each assistant also lists its `landing_pages`, the pages its visitors arrived on, so a follow-up like "Which pages does ChatGPT send people to?" needs no second call. This only works for sites with GA4. The count is a floor: some assistant visits arrive without a referrer and show up as `(direct)`.
 
 > Which sources besides Google sent the most engaged sessions to example.com in the last 28 days?
 

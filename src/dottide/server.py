@@ -108,7 +108,8 @@ def traffic(
     limit: int = 25,
 ) -> dict:
     """GA4 sessions by source and medium, plus AI assistant referrals (ChatGPT, Perplexity,
-    Copilot, Gemini, Claude and others) totalled separately. Only for sites with GA4."""
+    Copilot, Gemini, Claude and others) totalled separately. Each assistant lists the
+    landing_pages its visits started on, most sessions first. Only for sites with GA4."""
     return report.traffic(site, start, end, days, compare, limit)
 
 
