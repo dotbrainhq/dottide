@@ -177,6 +177,48 @@ def ga4_sources(profile: Profile, prop: str, start: str, end: str) -> list[dict]
     return rows
 
 
+def ga4_landing_pages(
+    profile: Profile, prop: str, start: str, end: str, source_pattern: str
+) -> list[dict]:
+    """Sessions by source, medium and landing page, for sources matching `source_pattern` (a
+    case-insensitive regex) or the medium ai-assistant. Biggest first."""
+
+    def match(name: str, value: str, kind: str) -> dict:
+        string = {"matchType": kind, "value": value, "caseSensitive": False}
+        return {"filter": {"fieldName": name, "stringFilter": string}}
+
+    body = {
+        "dateRanges": [{"startDate": start, "endDate": end}],
+        "dimensions": [{"name": n} for n in ("sessionSource", "sessionMedium", "landingPage")],
+        "metrics": [{"name": "sessions"}, {"name": "engagedSessions"}],
+        "dimensionFilter": {
+            "orGroup": {
+                "expressions": [
+                    match("sessionSource", source_pattern, "PARTIAL_REGEXP"),
+                    match("sessionMedium", "ai-assistant", "EXACT"),
+                ]
+            }
+        },
+        "orderBys": [{"metric": {"metricName": "sessions"}, "desc": True}],
+        "limit": 10_000,
+    }
+    data = _call(profile, "POST", f"{GA4_DATA}/properties/{prop}:runReport", json=body)
+    rows = []
+    for row in data.get("rows", []):
+        source, medium, page = (d["value"] for d in row["dimensionValues"])
+        sessions, engaged = (int(m["value"]) for m in row["metricValues"])
+        rows.append(
+            {
+                "source": source,
+                "medium": medium,
+                "landing_page": page,
+                "sessions": sessions,
+                "engaged_sessions": engaged,
+            }
+        )
+    return rows
+
+
 def ga4_web_streams(profile: Profile) -> list[dict]:
     """Every GA4 web stream the key can read, with the site address it tracks."""
     streams, page = [], None

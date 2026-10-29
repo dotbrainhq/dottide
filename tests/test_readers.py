@@ -77,6 +77,27 @@ def test_ga4_sources_parse_numbers(monkeypatch):
     }
 
 
+def test_ga4_landing_pages_ask_for_matching_sources_only(monkeypatch):
+    http = FakeHTTP(monkeypatch, {":runReport": (200, "ga4_landing_pages.json", None)})
+    rows = google.ga4_landing_pages(PROFILE, "111", "2026-10-01", "2026-10-28", "chatgpt\\.com")
+    assert rows[0] == {
+        "source": "chatgpt.com",
+        "medium": "referral",
+        "landing_page": "/pricing/",
+        "sessions": 5,
+        "engaged_sessions": 3,
+    }
+    body = http.calls[0][3]
+    assert [d["name"] for d in body["dimensions"]] == [
+        "sessionSource",
+        "sessionMedium",
+        "landingPage",
+    ]
+    either = body["dimensionFilter"]["orGroup"]["expressions"]
+    assert either[0]["filter"]["stringFilter"]["value"] == "chatgpt\\.com"
+    assert either[1]["filter"]["stringFilter"]["value"] == "ai-assistant"
+
+
 def test_ga4_web_streams_follow_pages(monkeypatch):
     FakeHTTP(
         monkeypatch,

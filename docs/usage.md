@@ -179,7 +179,7 @@ GA4 sessions by source and medium, with AI assistant referrals counted on their 
 uvx dottide traffic example.com --compare
 ```
 
-The result has `sessions`, `ai_sessions`, `ai_referrals` (one entry per assistant with sessions and engaged sessions) and the top `sources`. AI assistants are matched by referring domain: ChatGPT, Perplexity, Copilot, Gemini, Claude, Mistral, DeepSeek, Grok, Meta AI, You.com and Phind. Visits an assistant opens without a referrer land in `(direct)`, so treat the AI count as a floor.
+The result has `sessions`, `ai_sessions`, `ai_referrals` (one entry per assistant with sessions, engaged sessions and `landing_pages`) and the top `sources`. `landing_pages` lists the pages that assistant's visits started on, most sessions first, up to 10 or `limit`, whichever is smaller. It shows which pages the assistants link to. A `(not set)` page means GA4 didn't record where the session started. AI assistants are matched by referring domain: ChatGPT, Perplexity, Copilot, Gemini, Claude, Mistral, DeepSeek, Grok, Meta AI, You.com and Phind. Visits an assistant opens without a referrer land in `(direct)`, so treat the AI count as a floor.
 
 ### `store_stats`
 

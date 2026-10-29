@@ -56,6 +56,27 @@ def test_traffic_summary_counts_every_ai_row():
     assert [a["assistant"] for a in got["ai_referrals"]] == ["ChatGPT", "Gemini"]
 
 
+def test_ai_landing_pages_group_by_assistant_like_ai_referrals():
+    rows = [
+        {"source": "chatgpt.com", "medium": "referral", "landing_page": "/a/", "sessions": 3},
+        {"source": "chat.openai.com", "medium": "referral", "landing_page": "/b/", "sessions": 5},
+        {"source": "chatgpt.com", "medium": "referral", "landing_page": "/b/", "sessions": 2},
+        {"source": "chatgpt.com", "medium": "referral", "landing_page": "/c/", "sessions": 1},
+        {"source": "gemini", "medium": "ai-assistant", "landing_page": "/a/", "sessions": 1},
+        {"source": "google", "medium": "organic", "landing_page": "/a/", "sessions": 90},
+    ]
+    for r in rows:
+        r["engaged_sessions"] = 1
+    got = report.ai_landing_pages(rows, limit=2)
+    assert set(got) == {"ChatGPT", "Gemini"}
+    assert got["ChatGPT"] == [
+        {"page": "/b/", "sessions": 7, "engaged_sessions": 2},
+        {"page": "/a/", "sessions": 3, "engaged_sessions": 1},
+    ]
+    assert "chatgpt\\.com" in report.AI_SOURCE_PATTERN
+    assert "gemini" in report.AI_SOURCE_PATTERN
+
+
 def test_delta_handles_missing_previous_row():
     row = report._delta({"clicks": 5}, None, ("clicks",))
     assert row == {"clicks": 5, "previous_clicks": None, "change_clicks": None}

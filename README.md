@@ -26,7 +26,7 @@ dotTide reads all of it with one read-only key, and answers the same way in Clau
 
 - **`sites`:** every configured site, which key covers it, and whether Search Console, GA4 and Bing access works when you ask.
 - **`search_queries`:** clicks, impressions, CTR and average position by query or page, for any date range, with an optional comparison to the previous period and filters for country, device and search type.
-- **`traffic`:** GA4 sessions by source and medium, with AI assistant referrals (ChatGPT, Perplexity, Copilot, Gemini, Claude and others) counted separately. Only for sites that have GA4.
+- **`traffic`:** GA4 sessions by source and medium, with AI assistant referrals (ChatGPT, Perplexity, Copilot, Gemini, Claude and others) counted separately, with the landing pages each assistant sent visits to (`landing_pages`). Only for sites that have GA4.
 - **`store_stats`:** live public numbers that need no key: WordPress.org plugins, Firefox Add-ons, GitHub stars.
 - **`opportunities`:** what to work on next: queries in striking distance, pages and queries losing clicks, pages and queries slipping in position (`slipping_pages`, `slipping_queries`), and page-one queries with a low click-through rate for their position. When that last list is empty because too few queries rank on page one, `low_ctr_note` says so and gives each position band's count. List your brand names as `brand_terms` in the profile and searches for them stay out of the low click-through check, since they get far more clicks at the top.
 - **`page_queries`:** the queries that bring people to one page, and how much of the page's traffic Google hides behind anonymized queries.

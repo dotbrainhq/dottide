@@ -1,0 +1,4 @@
+{"rows": [
+  {"dimensionValues": [{"value": "chatgpt.com"}, {"value": "referral"}, {"value": "/pricing/"}], "metricValues": [{"value": "5"}, {"value": "3"}]},
+  {"dimensionValues": [{"value": "www.perplexity.ai"}, {"value": "referral"}, {"value": "/docs/start/"}], "metricValues": [{"value": "2"}, {"value": "1"}]}
+]}

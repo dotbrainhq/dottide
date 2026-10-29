@@ -27,6 +27,13 @@ AI_SOURCES = {
     "phind.com": "Phind",
 }
 
+# Narrows the GA4 landing-page report to likely AI rows; ai_assistant() still decides.
+AI_SOURCE_PATTERN = "|".join(
+    sorted({p.lower().replace(".", "\\.") for p in (*AI_SOURCES, *AI_SOURCES.values())})
+)
+# Landing pages listed per assistant, at most.
+AI_PAGES = 10
+
 
 def ai_assistant(source: str, medium: str = "") -> str | None:
     host = source.lower().strip().removeprefix("www.")
@@ -250,6 +257,23 @@ def _traffic_summary(rows: list[dict], limit: int) -> dict:
     }
 
 
+def ai_landing_pages(rows: list[dict], limit: int) -> dict[str, list[dict]]:
+    """Each assistant's landing pages, most sessions first, matched like ai_referrals."""
+    by_name: dict[str, dict[str, dict]] = {}
+    for row in rows:
+        if name := ai_assistant(row["source"], row.get("medium", "")):
+            page = by_name.setdefault(name, {}).setdefault(
+                row["landing_page"],
+                {"page": row["landing_page"], "sessions": 0, "engaged_sessions": 0},
+            )
+            page["sessions"] += row["sessions"]
+            page["engaged_sessions"] += row["engaged_sessions"]
+    return {
+        name: sorted(pages.values(), key=lambda p: -p["sessions"])[:limit]
+        for name, pages in by_name.items()
+    }
+
+
 def traffic(
     site: str,
     start: str | None = None,
@@ -265,6 +289,13 @@ def traffic(
     rows = google.ga4_sources(profile, s.ga4_property, str(first), str(last))
     result = {"site": site, "property": s.ga4_property, "start": str(first), "end": str(last)}
     result |= _traffic_summary(rows, limit)
+    if result["ai_referrals"]:
+        found = google.ga4_landing_pages(
+            profile, s.ga4_property, str(first), str(last), AI_SOURCE_PATTERN
+        )
+        pages = ai_landing_pages(found, min(limit, AI_PAGES))
+        for assistant in result["ai_referrals"]:
+            assistant["landing_pages"] = pages.get(assistant["assistant"], [])
     if compare:
         p_first, p_last = previous(first, last)
         p_rows = google.ga4_sources(profile, s.ga4_property, str(p_first), str(p_last))
