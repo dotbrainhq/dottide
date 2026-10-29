@@ -73,3 +73,28 @@ def test_low_ctr_note_gives_band_counts_when_no_band_is_full():
 
 def test_low_ctr_note_is_none_when_a_band_has_enough():
     assert op.low_ctr_note({"1-3": 3, "4-7": 0, "8-10": 0}, min_impressions=5) is None
+
+
+def test_slipping_sorts_by_position_drop_with_an_impressions_floor():
+    before = {
+        "/guide": row(4, 1139, 14.7),
+        "/home": row(10, 300, 1.7),
+        "/rare": row(0, 2, 5.0),
+        "/up": row(1, 50, 9.0),
+        "/flat": row(2, 80, 6.0),
+        "/gone": row(1, 40, 8.0),
+        "/docs": row(0, 25, 5.0),
+    }
+    now = {
+        "/guide": row(2, 989, 22.8),
+        "/home": row(7, 320, 2.5),
+        "/rare": row(0, 3, 40.0),
+        "/up": row(2, 60, 7.0),
+        "/flat": row(2, 85, 6.4),
+        "/docs": row(0, 24, 12.0),
+    }
+    got = op.slipping(now, before, "page", min_impressions=5, limit=10)
+    assert [r["page"] for r in got] == ["/guide", "/docs"]
+    assert got[0]["change_position"] == 8.1
+    assert got[0]["previous_clicks"] == 4
+    assert got[0]["impressions"] == 989

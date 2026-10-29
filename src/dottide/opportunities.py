@@ -1,9 +1,9 @@
 """Pages and queries worth working on, worked out from Search Console rows.
 
-Three kinds of opportunity, each item carrying its own numbers so an agent can quote them:
-queries in striking distance, pages and queries losing clicks, and queries whose click-through
-rate is low for their position. Low click-through is judged against the site's own other
-queries at a similar position, not an outside benchmark.
+Four kinds of opportunity, each item carrying its own numbers so an agent can quote them:
+queries in striking distance, pages and queries losing clicks, pages and queries slipping in
+position, and queries whose click-through rate is low for their position. Low click-through is
+judged against the site's own other queries at a similar position, not an outside benchmark.
 """
 
 from __future__ import annotations
@@ -18,6 +18,8 @@ from dottide.report import period, previous
 ROWS = 5000
 BANDS = ((1, 3), (4, 7), (8, 10))
 MIN_BAND_ROWS = 3
+# Smaller moves are day-to-day noise in average position.
+MIN_POSITION_DROP = 1.0
 
 
 def striking_distance(rows: dict[str, dict], min_impressions: int, limit: int) -> list[dict]:
@@ -49,6 +51,37 @@ def losing(now: dict[str, dict], before: dict[str, dict], key: str, limit: int) 
                 }
             )
     return sorted(items, key=lambda r: r["change_clicks"])[:limit]
+
+
+def slipping(
+    now: dict[str, dict], before: dict[str, dict], key: str, min_impressions: int, limit: int
+) -> list[dict]:
+    """Rows whose average position fell the most, with enough impressions in both periods.
+
+    A page that slides from 14 to 22 loses few clicks, so `losing` ranks it low; this catches it.
+    """
+    items = []
+    for name, old in before.items():
+        new = now.get(name)
+        if not new or min(old["impressions"], new["impressions"]) < min_impressions:
+            continue
+        if old["position"] is None or new["position"] is None:
+            continue
+        drop = round(new["position"] - old["position"], 1)
+        if drop >= MIN_POSITION_DROP:
+            items.append(
+                {
+                    key: name,
+                    "position": new["position"],
+                    "previous_position": old["position"],
+                    "change_position": drop,
+                    "clicks": new["clicks"],
+                    "previous_clicks": old["clicks"],
+                    "impressions": new["impressions"],
+                    "previous_impressions": old["impressions"],
+                }
+            )
+    return sorted(items, key=lambda r: -r["change_position"])[:limit]
 
 
 def _band(position: float) -> tuple[int, int] | None:
@@ -160,6 +193,8 @@ def opportunities(
         "striking_distance": striking_distance(queries, min_impressions, limit),
         "losing_pages": losing(pages, old_pages, "page", limit),
         "losing_queries": losing(queries, old_queries, "query", limit),
+        "slipping_pages": slipping(pages, old_pages, "page", min_impressions, limit),
+        "slipping_queries": slipping(queries, old_queries, "query", min_impressions, limit),
         "low_ctr": low_ctr(queries, min_impressions, limit, s.brand_terms),
     }
     counts = band_counts(queries, min_impressions, s.brand_terms)
