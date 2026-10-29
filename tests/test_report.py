@@ -31,12 +31,29 @@ def test_period_rejects_start_after_end():
         ("www.perplexity.ai", "Perplexity"),
         ("claude.ai", "Claude"),
         ("gemini.google.com", "Gemini"),
+        ("gemini", "Gemini"),
         ("google", None),
         ("notchatgpt.com", None),
     ],
 )
 def test_ai_assistant(source, name):
     assert report.ai_assistant(source) == name
+
+
+def test_ai_assistant_trusts_ga4_medium_for_unknown_sources():
+    assert report.ai_assistant("newbot.example", "ai-assistant") == "newbot.example"
+    assert report.ai_assistant("newbot.example", "referral") is None
+
+
+def test_traffic_summary_counts_every_ai_row():
+    rows = [
+        {"source": "google", "medium": "organic", "sessions": 80, "engaged_sessions": 46},
+        {"source": "chatgpt.com", "medium": "ai-assistant", "sessions": 17, "engaged_sessions": 5},
+        {"source": "gemini", "medium": "ai-assistant", "sessions": 1, "engaged_sessions": 1},
+    ]
+    got = report._traffic_summary(rows, limit=10)
+    assert got["ai_sessions"] == 18
+    assert [a["assistant"] for a in got["ai_referrals"]] == ["ChatGPT", "Gemini"]
 
 
 def test_delta_handles_missing_previous_row():

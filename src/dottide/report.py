@@ -28,11 +28,15 @@ AI_SOURCES = {
 }
 
 
-def ai_assistant(source: str) -> str | None:
+def ai_assistant(source: str, medium: str = "") -> str | None:
     host = source.lower().strip().removeprefix("www.")
     for domain, name in AI_SOURCES.items():
-        if host == domain or host.endswith("." + domain):
+        if host == domain or host.endswith("." + domain) or host == name.lower():
             return name
+    # GA4 tags some assistants with a bare name ("gemini") and medium "ai-assistant";
+    # trust that medium so an assistant missing from the list still counts.
+    if medium.lower() == "ai-assistant":
+        return source
     return None
 
 
@@ -234,7 +238,7 @@ def page_queries(
 def _traffic_summary(rows: list[dict], limit: int) -> dict:
     ai: dict[str, dict] = {}
     for row in rows:
-        if name := ai_assistant(row["source"]):
+        if name := ai_assistant(row["source"], row.get("medium", "")):
             bucket = ai.setdefault(name, {"assistant": name, "sessions": 0, "engaged_sessions": 0})
             bucket["sessions"] += row["sessions"]
             bucket["engaged_sessions"] += row["engaged_sessions"]
