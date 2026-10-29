@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.1
+
+- `opportunities` adds `slipping_pages` and `slipping_queries`: pages and queries whose average position dropped the most against the previous period, for rows with enough impressions in both. A page that slides from page two to page three now shows even when it lost only a couple of clicks.
+- When `low_ctr` comes back empty because no position band has three queries, `low_ctr_note` says so and `low_ctr_band_counts` gives each band's count.
+- A site can list `brand_terms` in its profile, and queries containing them stay out of the `low_ctr` check. `discover` suggests a commented-out `brand_terms` line from each new site's domain.
+- `traffic` lists the landing pages each AI assistant sent visits to, under `landing_pages` in `ai_referrals`.
+- Gemini visits tagged with the bare source `gemini` now count in `ai_referrals`, and any source GA4 gives the `ai-assistant` medium counts as AI traffic.
+
 ## 0.4.0
 
 - `page_queries` shows the queries behind one page, with the page's own totals and the clicks and impressions Google hides behind anonymized queries.
