@@ -53,3 +53,23 @@ def test_low_ctr_leaves_brand_queries_out_of_medians_and_list():
     assert [r["query"] for r in op.low_ctr(rows, 5, 10)] == ["fair"]
     assert op.low_ctr(rows, 5, 10, brand_terms=("acme",)) == []
     assert op.branded(rows, ("ACME",)) == 3
+
+
+def test_low_ctr_note_gives_band_counts_when_no_band_is_full():
+    rows = {
+        "a": row(1, 50, 2.0),
+        "b": row(0, 50, 5.0),
+        "c": row(0, 50, 6.4),
+        "tiny": row(0, 2, 2.0),
+        "acme": row(9, 50, 1.0),
+        "far": row(0, 50, 30.0),
+    }
+    counts = op.band_counts(rows, min_impressions=5, brand_terms=("acme",))
+    assert counts == {"1-3": 1, "4-7": 2, "8-10": 0}
+    note = op.low_ctr_note(counts, min_impressions=5)
+    assert "no position band has 3 queries" in note
+    assert "1-3: 1, 4-7: 2, 8-10: 0" in note
+
+
+def test_low_ctr_note_is_none_when_a_band_has_enough():
+    assert op.low_ctr_note({"1-3": 3, "4-7": 0, "8-10": 0}, min_impressions=5) is None

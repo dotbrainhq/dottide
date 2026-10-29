@@ -134,8 +134,10 @@ def opportunities(
     """What to work on next for a site, from Search Console: queries in striking distance
     (position 8 to 20, by impressions), pages and queries that lost the most clicks against the
     previous period, and page-one queries whose CTR is under half the site's own median for
-    that position. Every item carries its numbers. Same date rules and filters as
-    search_queries, except Discover and Google News, which have no query rows."""
+    that position. When low_ctr is empty because no position band has three queries,
+    low_ctr_note says so and low_ctr_band_counts gives each band's count. Every item carries
+    its numbers. Same date rules and filters as search_queries, except Discover and Google
+    News, which have no query rows."""
     return chances.opportunities(
         site, start, end, days, min_impressions, limit, country, device, search_type
     )

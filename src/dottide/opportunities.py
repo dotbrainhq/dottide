@@ -67,6 +67,37 @@ def branded(rows: dict[str, dict], terms: tuple[str, ...]) -> int:
     return sum(_is_brand(q, terms) for q in rows)
 
 
+def _band_ctrs(
+    rows: dict[str, dict], min_impressions: int, brand_terms: tuple[str, ...]
+) -> dict[tuple[int, int], list[float]]:
+    by_band: dict[tuple[int, int], list[float]] = {}
+    for q, r in rows.items():
+        band = _band(r["position"])
+        if band and r["impressions"] >= min_impressions and not _is_brand(q, brand_terms):
+            by_band.setdefault(band, []).append(r["ctr"])
+    return by_band
+
+
+def band_counts(
+    rows: dict[str, dict], min_impressions: int, brand_terms: tuple[str, ...] = ()
+) -> dict[str, int]:
+    """How many queries each position band has to work out its median from."""
+    by_band = _band_ctrs(rows, min_impressions, brand_terms)
+    return {f"{low}-{high}": len(by_band.get((low, high), [])) for low, high in BANDS}
+
+
+def low_ctr_note(counts: dict[str, int], min_impressions: int) -> str | None:
+    """Why low_ctr is empty when no band has enough queries for a median, or None."""
+    if max(counts.values()) >= MIN_BAND_ROWS:
+        return None
+    found = ", ".join(f"{band}: {n}" for band, n in counts.items())
+    return (
+        f"low_ctr is empty because no position band has {MIN_BAND_ROWS} queries with "
+        f"{min_impressions}+ impressions to compare against ({found}). Try a longer range or a "
+        "lower min_impressions."
+    )
+
+
 def low_ctr(
     rows: dict[str, dict], min_impressions: int, limit: int, brand_terms: tuple[str, ...] = ()
 ) -> list[dict]:
@@ -74,12 +105,8 @@ def low_ctr(
 
     Brand queries click far more at the top, so they would lift the medians; they are left out.
     """
+    by_band = _band_ctrs(rows, min_impressions, brand_terms)
     rows = {q: r for q, r in rows.items() if not _is_brand(q, brand_terms)}
-    by_band: dict[tuple[int, int], list[float]] = {}
-    for r in rows.values():
-        band = _band(r["position"])
-        if band and r["impressions"] >= min_impressions:
-            by_band.setdefault(band, []).append(r["ctr"])
     medians = {b: median(c) for b, c in by_band.items() if len(c) >= MIN_BAND_ROWS}
     items = []
     for q, r in rows.items():
@@ -135,6 +162,10 @@ def opportunities(
         "losing_queries": losing(queries, old_queries, "query", limit),
         "low_ctr": low_ctr(queries, min_impressions, limit, s.brand_terms),
     }
+    counts = band_counts(queries, min_impressions, s.brand_terms)
+    if note := low_ctr_note(counts, min_impressions):
+        result["low_ctr_note"] = note
+        result["low_ctr_band_counts"] = counts
     if s.brand_terms:
         result["brand_terms"] = list(s.brand_terms)
         result["brand_queries_left_out"] = branded(queries, s.brand_terms)
