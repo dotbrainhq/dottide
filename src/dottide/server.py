@@ -203,8 +203,9 @@ def bing_queries(
 @server.tool(annotations=READ_ONLY)
 def discover(profile: str | None = None) -> dict:
     """Every Search Console property and GA4 web stream the key can read, matched by domain,
-    with ready-to-paste [[sites]] blocks for any site not in a profile yet. Reads only; the
-    user adds the blocks with `dottide discover --write`."""
+    with ready-to-paste [[sites]] blocks for any site not in a profile yet. Each block has a
+    commented-out brand_terms suggestion from the domain name. Reads only; the user adds the
+    blocks with `dottide discover --write`."""
     return finder.discover(profile)
 
 

@@ -1,4 +1,5 @@
 from dottide import discover
+from dottide.config import load_profiles
 
 
 def test_host_handles_every_property_shape():
@@ -46,8 +47,26 @@ def test_toml_output():
     )
     assert toml == (
         '[[sites]]\nname = "a.test"\n'
-        'search_console = "sc-domain:a.test"\nga4_property = "42"   # G-X'
+        'search_console = "sc-domain:a.test"\nga4_property = "42"   # G-X\n'
+        '# brand_terms = ["a"]   # suggested from the domain; check it, then uncomment'
     )
+
+
+def test_brand_guess_takes_the_name_from_the_domain():
+    assert discover.brand_guess("themology.com") == ["themology"]
+    assert discover.brand_guess("blog.example.co.uk") == ["example"]
+    assert discover.brand_guess("my-site.com") == ["my-site", "my site"]
+    assert discover.brand_guess("localhost") == []
+
+
+def test_write_keeps_the_brand_suggestion_commented(tmp_path, monkeypatch):
+    path = tmp_path / "main.toml"
+    path.write_text('[key]\nkeychain = "k"\n')
+    monkeypatch.setenv("DOTTIDE_CONFIG", str(path))
+    discover.write(None, discover.to_toml([{"name": "themology.com"}]))
+    assert '# brand_terms = ["themology"]' in path.read_text()
+    site = load_profiles()[0].sites[0]
+    assert site.brand_terms == ()
 
 
 def test_write_puts_sites_before_stores(tmp_path, monkeypatch):

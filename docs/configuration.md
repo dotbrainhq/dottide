@@ -70,7 +70,7 @@ One block per site.
 | `ga4_property` | No | The numeric GA4 property ID from Admin, then Property details. It's a number like `123456789`, not the `G-` measurement ID. Leave it out for sites without GA4. |
 | `brand_terms` | No | Words that mark a search for the site's own name, like `["example", "example app"]`. Any query that contains one, in any case, is left out of the `low_ctr` check in `opportunities`, since searches for your own name get far more clicks at the top and would make other queries look weak. |
 
-You rarely need to type these by hand: `uvx dottide discover --write` finds every site the key can read and adds the blocks for you. To check a property name yourself, `uvx dottide sites` lists every property the key can see.
+You rarely need to type these by hand: `uvx dottide discover --write` finds every site the key can read and adds the blocks for you, each with a commented-out `brand_terms` line guessed from the domain for you to check and turn on. To check a property name yourself, `uvx dottide sites` lists every property the key can see.
 
 ### `[bing]`
 
